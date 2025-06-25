@@ -11,5 +11,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public async Task<JsonResult> GetProjects()
+        {
+            var projects = ProjectDAO.GetProjects();
+            return Json(projects);
+        }
     }
 }

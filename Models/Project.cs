@@ -1,4 +1,6 @@
-﻿namespace ERP_Proflipper_WorkspaceService.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ERP_Proflipper_WorkspaceService.Models
 {
     public class Project
     {
@@ -14,5 +16,16 @@
         public DateTime UpdatedAt { get; set; }
     }
 
-    public class 
+    public class ProjectDAO
+    {
+        public static async Task<List<Project>> GetProjects()
+        {
+            using(var db = new ProjectsDB())
+            {
+                var projects = await db.Projects.ToListAsync();
+
+                return projects;
+            }
+        }
+    }
 }
