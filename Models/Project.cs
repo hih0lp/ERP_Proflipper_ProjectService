@@ -1,3 +1,4 @@
+﻿using ERP_Proflipper_ProjectService;
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace ERP_Proflipper_WorkspaceService.Models
@@ -16,8 +17,18 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public DateTime UpdatedAt { get; set; }
     }
 
-    public class ProjectDAO
+    public static class ProjectDAO
     {
+        ProjectsDB _db = new ProjectsDB();
+        ProjectValidator projectValidator = new ProjectValidator();
+      
+        public static async void AddProjectInDB(Project project)
+        {
+            _db.Projects.Add(project);
+            await _db.SaveChangesAsync();
+          
+        }
+      
         public static async Task<List<Project>> GetProjects()
         {
             using(var db = new ProjectsDB())
