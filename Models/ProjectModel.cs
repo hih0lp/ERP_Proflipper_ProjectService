@@ -1,0 +1,16 @@
+﻿namespace ERP_Proflipper_WorkspaceService.Models
+{
+    public class ProjectModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Status { get; set; }
+        public double Area { get; set; }
+        public double Price { get; set; }
+        public string Location { get; set; }
+        public string Condition { get; set; }
+        public string Comment { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+}
