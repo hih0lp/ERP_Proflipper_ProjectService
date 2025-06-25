@@ -1,4 +1,6 @@
-﻿namespace ERP_Proflipper_WorkspaceService.Models
+﻿using ERP_Proflipper_ProjectService;
+
+namespace ERP_Proflipper_WorkspaceService.Models
 {
     public class Project
     {
@@ -14,5 +16,14 @@
         public DateTime UpdatedAt { get; set; }
     }
 
-    public class 
+    public class ProjectDAO
+    {
+        ProjectsDB _db = new ProjectsDB();
+        ProjectValidator projectValidator = new ProjectValidator();
+        public async void AddProjectInDB(Project project)
+        {
+            _db.Projects.Add(project);
+            await _db.SaveChangesAsync();
+        }
+    }
 }
