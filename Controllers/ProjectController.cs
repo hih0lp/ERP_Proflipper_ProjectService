@@ -10,7 +10,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 {
     public class ProjectController : Controller
     {
-        ProjectValidator projectValidator = new ProjectValidator(); //��������� ������ ��� project
+        ProjectValidator projectValidator = new ProjectValidator(); //custom validator
         public IActionResult Index()
         {
             return View();
@@ -22,11 +22,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             try
             {
-                var project = await Request.ReadFromJsonAsync<Project>(); //��������� ������ �� �����
-                await projectValidator.ValidateAndThrowAsync(project); //������������� ������
-                
-                AddProjectInDB(project);
-                
+                var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
+                await projectValidator.ValidateAndThrowAsync(project); //validate project data
+
+                ProjectDAO.AddProjectInDB(project);
+
                 return Ok();
             }
             catch (ValidationException exception)
@@ -37,8 +37,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 }
 
                 return BadRequest();
-            }         
-            
+            }
+        }
+
         [HttpGet]
         [Route("/projects")]
         public async Task<JsonResult> GetProjects()

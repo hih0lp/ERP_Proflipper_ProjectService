@@ -19,13 +19,14 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
     public static class ProjectDAO
     {
-        ProjectsDB _db = new ProjectsDB();
-        ProjectValidator projectValidator = new ProjectValidator();
-      
         public static async void AddProjectInDB(Project project)
         {
-            _db.Projects.Add(project);
-            await _db.SaveChangesAsync();
+            using (var db = new ProjectsDB())
+            {
+
+                db.Projects.Add(project);
+                await db.SaveChangesAsync();
+            }
           
         }
       
