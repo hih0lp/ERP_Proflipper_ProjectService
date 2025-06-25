@@ -1,5 +1,6 @@
 ﻿using ERP_Proflipper_ProjectService;
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP_Proflipper_WorkspaceService.Models
 {
@@ -30,13 +31,25 @@ namespace ERP_Proflipper_WorkspaceService.Models
           
         }
       
-        public static async Task<List<Project>> GetProjects()
+        public static async Task<List<Project>> GetProjectsAsync()
         {
             using(var db = new ProjectsDB())
             {
                 var projects = await db.Projects.ToListAsync();
 
                 return projects;
+            }
+        }
+
+        public static async Task EditProjectAsync(Project modifiedProject) //mb need to add something like a check an accessibility of db
+        {
+            using(var db = new ProjectsDB())
+            {
+                var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
+                changableProject = modifiedProject;
+
+                db.Update(changableProject);
+                await db.SaveChangesAsync();
             }
         }
     }
