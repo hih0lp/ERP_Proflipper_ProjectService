@@ -10,7 +10,7 @@ namespace ERP_Proflipper_WorkspaceService
             Database.EnsureCreated();
         }
 
-        public DbSet<ProjectModel> Projects { get; set; }
+        public DbSet<Project> Projects { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
