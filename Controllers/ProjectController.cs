@@ -10,7 +10,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 {
     public class ProjectController : Controller
     {
-        ProjectValidator projectValidator = new ProjectValidator(); //валидатор данных для project
+        ProjectValidator projectValidator = new ProjectValidator(); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ project
         public IActionResult Index()
         {
             return View();
@@ -22,9 +22,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             try
             {
-                var project = await Request.ReadFromJsonAsync<Project>(); //получение данных из формы
-                await projectValidator.ValidateAndThrowAsync(project); //валидирование данные
-
+                var project = await Request.ReadFromJsonAsync<Project>(); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+                await projectValidator.ValidateAndThrowAsync(project); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+                
+                AddProjectInDB(project);
+                
                 return Ok();
             }
             catch (ValidationException exception)
@@ -35,7 +37,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 }
 
                 return BadRequest();
-            }           
+            }         
+            
+        [HttpGet]
+        [Route("/projects")]
+        public async Task<JsonResult> GetProjects()
+        {
+            var projects = ProjectDAO.GetProjects();
+            return Json(projects);
         }
     }
 }
