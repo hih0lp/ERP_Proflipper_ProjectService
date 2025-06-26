@@ -2,16 +2,23 @@
 using ERP_Proflipper_ProjectService;
 using ERP_Proflipper_WorkspaceService.Models;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace ERP_Proflipper_WorkspaceService.Controllers
 {
     public class ProjectController : Controller
     {
         ProjectValidator projectValidator = new ProjectValidator(); //custom validator
+        private ILogger<ProjectController> _logger;
+
+        public ProjectController(ILogger<ProjectController> logger)
+        {
+            _logger = logger;
+        }
 
         public IActionResult Index()
         {
@@ -20,12 +27,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/projects")]
-        public async Task<StatusCodeResult> AddProductsInDB(ILogger<ProjectController> logger)
+        public async Task<StatusCodeResult> AddProjectInDB()
         {
             try
             {
                 var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
                 await projectValidator.ValidateAndThrowAsync(project); //validate project data
+
+                Console.WriteLine(project.Comment);
 
                 ProjectDAO.AddProjectInDB(project);
 
@@ -35,7 +44,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 foreach (var error in exception.Errors)
                 {
-                    logger.LogError(error.ErrorMessage);
+                    _logger.LogError(error.ErrorMessage);
                 }
 
                 return BadRequest();
@@ -61,7 +70,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPut]
         [Route("/projects")]
-        public async Task<StatusCodeResult> EditProject(ILogger<ProjectController> logger)
+        public async Task<StatusCodeResult> EditProject()
         {
             try
             {
@@ -77,7 +86,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 foreach (var error in exception.Errors)
                 {
-                    logger.LogError(error.ErrorMessage);
+                    _logger.LogError(error.ErrorMessage);
                 }
 
                 return BadRequest();

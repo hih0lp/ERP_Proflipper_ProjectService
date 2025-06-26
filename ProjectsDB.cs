@@ -7,6 +7,7 @@ namespace ERP_Proflipper_WorkspaceService
     {
         public ProjectsDB()
         {
+            Console.WriteLine("dfkbnfoib");
             Database.EnsureCreated();
         }
 
@@ -14,7 +15,7 @@ namespace ERP_Proflipper_WorkspaceService
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_TEST; Username=admin; Password=admin; Encoding=UTF8;");
         }
     }
 }

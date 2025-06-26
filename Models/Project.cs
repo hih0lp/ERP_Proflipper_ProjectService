@@ -1,22 +1,24 @@
 ﻿using ERP_Proflipper_ProjectService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 using System.Net.NetworkInformation;
 
 namespace ERP_Proflipper_WorkspaceService.Models
 {
     public class Project
     {
-        public int Id { get; set; }
+        public int Id { get; set; } = 0!;
         public string Name { get; set; }
         public string Status { get; set; }
         public double Area { get; set; }
         public double Price { get; set; }
         public string Location { get; set; }
         public string Condition { get; set; }
-        public string Comment { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string? Comment { get; set; }
+        public string CreatedAt { get; set; }
+        public string UpdatedAt { get; set; }
     }
 
     public static class ProjectDAO
@@ -25,7 +27,6 @@ namespace ERP_Proflipper_WorkspaceService.Models
         {
             using (var db = new ProjectsDB())
             {
-
                 db.Projects.Add(project);
                 await db.SaveChangesAsync();
             }
