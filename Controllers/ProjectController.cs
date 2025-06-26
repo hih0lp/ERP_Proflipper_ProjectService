@@ -59,6 +59,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return Json(projects);
         }
 
+        [HttpGet]
+        [Route("/projects/{id}")]
+        public async Task<IActionResult> GetProject(int id)
+        {
+            var project = await ProjectDAO.GetProjectAsync(id);
+            
+            return project == null ? BadRequest() : Json(project);
+        }
+
         [HttpPut]
         [Route("/projects")]
         public async Task<StatusCodeResult> EditProject()
@@ -82,6 +91,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 return BadRequest();
             }
+        }
+
+        [HttpDelete]
+        [Route("/projects/{id}")]
+        public async Task<StatusCodeResult> DeleteProject(int id)
+        {
+            return await ProjectDAO.DeleteProjectAsync(id) ? Ok() : BadRequest();
         }
     }
 }
