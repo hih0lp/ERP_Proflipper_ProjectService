@@ -1,7 +1,9 @@
 ﻿using ERP_Proflipper_ProjectService;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ERP_Proflipper_WorkspaceService.Models
@@ -10,7 +12,9 @@ namespace ERP_Proflipper_WorkspaceService.Models
     {
         public int Id { get; set; } = 0!;
         public string Name { get; set; }
-        public string Status { get; set; }
+        public string NowStatus { get; set; }
+        public bool IsPaused { get; set; }
+        public bool IsFinished { get; set; }
         public double Area { get; set; }
         public double Price { get; set; }
         public string Location { get; set; }
@@ -22,6 +26,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
     public static class ProjectDAO
     {
+
         public static async void AddProjectInDB(Project project)
         {
             using (var db = new ProjectsDB())
@@ -32,11 +37,13 @@ namespace ERP_Proflipper_WorkspaceService.Models
           
         }
       
-        public static async Task<List<Project>> GetProjectsAsync()
+        ////////каждая отдельная роль получает проекты согласно своей роли
+        public static async Task<List<Project>> GetProjectsAsync(string accessibleStatus)
         {
-            using(var db = new ProjectsDB())
+            //projects can be seen by all people who have access to the projects
+            using (var db = new ProjectsDB())
             {
-                var projects = await db.Projects.ToListAsync();
+                var projects = db.Projects.Where(x => !x.IsFinished && x.NowStatus == accessibleStatus).ToList();
 
                 return projects;
             }
@@ -51,6 +58,17 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
                 db.Update(changableProject);
                 await db.SaveChangesAsync();
+            }
+        }
+
+        public static async void ChangeProjectStatus(Project project, string nextStatus)
+        {
+            //only director can finish project
+            using (var db = new ProjectsDB())
+            {
+                project.NowStatus = nextStatus;
+                db.Projects.Update(project);
+                db.SaveChanges();
             }
         }
     }
