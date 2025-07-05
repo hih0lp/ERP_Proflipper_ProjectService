@@ -27,14 +27,16 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/projects")]
-        public async Task<StatusCodeResult> AddProjectInDB()
+        public async Task<StatusCodeResult> AddProjectInDB() //READY
         {
             try
             {
                 var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
                 await projectValidator.ValidateAndThrowAsync(project); //validate project data
 
-                Console.WriteLine(project.Comment);
+                project.NowStatus = "documents"; //for project_manager
+
+                //Console.WriteLine(project.Comment);
 
                 ProjectDAO.AddProjectInDB(project);
 
@@ -53,9 +55,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         [Route("/projects")]
-        public async Task<JsonResult> GetProjects()
+        public async Task<JsonResult> GetProjects(string accessibleStatus) //NEED TEST
         {
-            var projects = await ProjectDAO.GetProjectsAsync();
+            var projects = await ProjectDAO.GetProjectsAsync(accessibleStatus);
             return Json(projects);
         }
 
@@ -70,7 +72,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPut]
         [Route("/projects")]
-        public async Task<StatusCodeResult> EditProject()
+        public async Task<StatusCodeResult> EditProject() //NEED TEST
         {
             try
             {
@@ -92,6 +94,16 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 return BadRequest();
             }
         }
+
+        public async Task<StatusCodeResult> ChangeProjectStatus(string nextStatus)
+        {
+            var project = await Request.ReadFromJsonAsync<Project>();
+            ProjectDAO.ChangeProjectStatus(project, nextStatus);
+
+            return Ok();
+        }
+
+
 
         [HttpDelete]
         [Route("/projects/{id}")]
