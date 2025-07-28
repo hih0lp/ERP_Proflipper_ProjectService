@@ -23,6 +23,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string? Comment { get; set; }
         public string CreatedAt { get; set; }
         public string UpdatedAt { get; set; }
+        public string Responsible { get; set; }
     }
 
     public static class ProjectDAO
@@ -39,12 +40,12 @@ namespace ERP_Proflipper_WorkspaceService.Models
         }
       
         ////////каждая отдельная роль получает проекты согласно своей роли
-        public static async Task<List<Project>> GetProjectsAsync(string accessibleStatus)
+        public static async Task<List<Project>> GetProjectsAsync()
         {
             //projects can be seen by all people who have access to the projects
             using (var db = new ProjectsDB())
             {
-                var projects = db.Projects.Where(x => !x.IsFinished && x.NowStatus == accessibleStatus).ToList();
+                var projects = db.Projects.Where(x => !x.IsFinished).ToList();
 
                 return projects;
             }
@@ -83,7 +84,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
                 db.SaveChanges();
               
             }
-         }
+        }
               
               
               

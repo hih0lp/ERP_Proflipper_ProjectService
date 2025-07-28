@@ -34,7 +34,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
                 await projectValidator.ValidateAndThrowAsync(project); //validate project data
 
-                project.NowStatus = "documents"; //for project_manager
+                project.NowStatus = "Новый проект"; //for project_manager
 
                 //Console.WriteLine(project.Comment);
 
@@ -55,9 +55,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         [Route("/projects")]
-        public async Task<JsonResult> GetProjects(string accessibleStatus) //NEED TEST
+        public async Task<JsonResult> GetProjects() //NEED TEST //params string accessibleStatus
         {
-            var projects = await ProjectDAO.GetProjectsAsync(accessibleStatus);
+            var projects = await ProjectDAO.GetProjectsAsync();
             return Json(projects);
         }
 
