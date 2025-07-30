@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using System.Net.NetworkInformation;
+using Microsoft.AspNetCore.Builder.Extensions;
 
 namespace ERP_Proflipper_WorkspaceService.Models
 {
@@ -65,7 +66,8 @@ namespace ERP_Proflipper_WorkspaceService.Models
         {
             using(var db = new ProjectsDB())
             {
-                var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
+                //Console.WriteLine("pizda");
+                var changableProject = await db.Projects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
                 changableProject = modifiedProject;
 
                 db.Update(changableProject);

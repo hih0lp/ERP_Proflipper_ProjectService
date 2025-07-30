@@ -12,6 +12,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 {
     public class ProjectController : Controller
     {
+        List<Project> projects = new List<Project>();//for test / comment
         ProjectValidator projectValidator = new ProjectValidator(); //custom validator
         private ILogger<ProjectController> _logger;
 
@@ -32,13 +33,19 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
                 var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
+
+                projects.Add(project);
+
+                //project.NowStatus = "Новый проект"; 
+                //for project_manager
                 await projectValidator.ValidateAndThrowAsync(project); //validate project data
 
-                project.NowStatus = "Новый проект"; //for project_manager
+                foreach (var item in projects)
+                {
+                    _logger.LogInformation(item.Name);
+                }
 
-                //Console.WriteLine(project.Comment);
-
-                ProjectDAO.AddProjectInDB(project);
+                //ProjectDAO.AddProjectInDB(project); //uncomment for need
 
                 return Ok();
             }
@@ -57,7 +64,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects")]
         public async Task<JsonResult> GetProjects() //NEED TEST //params string accessibleStatus
         {
-            var projects = await ProjectDAO.GetProjectsAsync();
+            //var projects = await ProjectDAO.GetProjectsAsync(); //uncomment in future
+
+
             return Json(projects);
         }
 
@@ -65,8 +74,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/{id}")]
         public async Task<IActionResult> GetProject(int id)
         {
-            var project = await ProjectDAO.GetProjectAsync(id);
-            
+            //var project = await ProjectDAO.GetProjectAsync(id);
+
+            var project = projects.FirstOrDefault(x => x.Id == id
+            );
+
             return project == null ? BadRequest() : Json(project);
         }
 
@@ -95,6 +107,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("change-status")]
         public async Task<StatusCodeResult> ChangeProjectStatus(string nextStatus)
         {
             var project = await Request.ReadFromJsonAsync<Project>();
