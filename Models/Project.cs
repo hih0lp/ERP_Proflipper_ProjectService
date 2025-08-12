@@ -12,7 +12,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
 {
     public class Project
     {
-        public int Id { get; set; } = 0!;
+        public int Id { get; set; }
         public string Name { get; set; }
         public string NowStatus { get; set; }
         public bool IsPaused { get; set; }
@@ -29,7 +29,6 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
     public static class ProjectDAO
     {
-
         public static async void AddProjectInDB(Project project)
         {
             using (var db = new ProjectsDB())

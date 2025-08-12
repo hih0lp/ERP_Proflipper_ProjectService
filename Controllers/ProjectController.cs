@@ -31,7 +31,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             try
             {
+                Console.WriteLine(12345678);
                 var project = await Request.ReadFromJsonAsync<Project>(); //read project from form
+
 
                 await projectValidator.ValidateAndThrowAsync(project); //validate project data
 
