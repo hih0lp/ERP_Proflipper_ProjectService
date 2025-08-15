@@ -1,11 +1,15 @@
-﻿using Npgsql;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using MongoDB.Driver;
+using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 
@@ -15,14 +19,29 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder.Services.AddAuthorization(opts =>
-{
-    opts.AddPolicy("OnlyForPM", p =>
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        p.RequireClaim(ClaimTypes.Role, "ProjectManager");
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            ValidateLifetime = true,
+
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("OnlyForPM", policy =>
+        policy.RequireRole("ProjectManager"));
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing =>
@@ -55,6 +74,7 @@ app.UseCors(builder => builder
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
