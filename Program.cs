@@ -1,4 +1,9 @@
 ﻿using Npgsql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Text.Encodings.Web;
@@ -10,6 +15,14 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
+builder.Services.AddAuthorization(opts =>
+{
+    opts.AddPolicy("OnlyForPM", p =>
+    {
+        p.RequireClaim(ClaimTypes.Role, "ProjectManager");
+    });
+});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing =>

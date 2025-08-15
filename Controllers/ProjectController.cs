@@ -27,6 +27,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/projects")]
+        [Authorize(Roles = "ProjectManager")]
+        [Authorize(Policy = "OnlyForPM")]
         public async Task<StatusCodeResult> AddProjectInDB() //READY
         {
             try
