@@ -15,7 +15,7 @@ namespace ERP_Proflipper_WorkspaceService
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_TEST; Username=admin; Password=admin; Encoding=UTF8;");
+            optionsBuilder.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=admin; Encoding=UTF8;");
         }
     }
 }
