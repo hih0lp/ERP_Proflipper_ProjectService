@@ -65,12 +65,14 @@ namespace ERP_Proflipper_WorkspaceService.Models
         {
             using(var db = new ProjectsDB())
             {
-                //Console.WriteLine("pizda");
-                var changableProject = await db.Projects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
+                var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
                 changableProject = modifiedProject;
 
-                db.Update(changableProject);
-                await db.SaveChangesAsync();
+                //db.Update(changableProject); //1
+                //db.Attach(changableProject); //2
+                //db.Entry(changableProject).State = EntityState.Modified; //3
+
+                await db.SaveChangesAsync(); //4
             }
         }
       
