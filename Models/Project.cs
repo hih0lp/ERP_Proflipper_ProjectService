@@ -108,50 +108,52 @@ namespace ERP_Proflipper_WorkspaceService.Models
             }
         }
 
-        public static async Task<Result> CreateGoogleProjectSheet(IConfiguration configuration, string projectName, SheetsService sheetsService)
-        {
-            var sheetId = configuration["sheet_id"];
-            string credentialsPath = "input_path_of_credentials";
+        //public static async Task<Result> CreateGoogleProjectSheet(IConfiguration configuration, string projectName, SheetsService sheetsService)
+        //{
+        //    var sheetId = configuration["sheet_id"];
+        //    string credentialsPath = "input_path_of_credentials";
 
-            var newSpreadSheet = new Spreadsheet
-            {
-                Properties = new SpreadsheetProperties
-                {
-                    Title = projectName
-                }
-            };
+        //    var newSpreadSheet = new Spreadsheet
+        //    {
+        //        Properties = new SpreadsheetProperties
+        //        {
+        //            Title = projectName
+        //        }
+        //    };
 
-            try
-            {
-                var createdSpreadsheet = sheetsService.Spreadsheets.Create(newSpreadSheet).Execute();
-                await FillNowCreatedTable(createdSpreadsheet, sheetsService);
+        //    try
+        //    {
+        //        var createdSpreadsheet = sheetsService.Spreadsheets.Create(newSpreadSheet).Execute();
+        //        await FillNowCreatedTable(createdSpreadsheet, sheetsService);
+
+        //        return Result.Ok();
                 
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail(ex.Message);
-            }           
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result.Fail(ex.Message);
+        //    }           
+        //}
 
 
-        private static async Task FillNowCreatedTable(Spreadsheet newTable, SheetsService sheetsService)
-        {
-            var sheetId = newTable.SpreadsheetId;
-            SpreadsheetsResource.ValuesResource sheetsResource = sheetsService.Spreadsheets.Values;
+        //private static async Task FillNowCreatedTable(Spreadsheet newTable, SheetsService sheetsService)
+        //{
+        //    var sheetId = newTable.SpreadsheetId;
+        //    SpreadsheetsResource.ValuesResource sheetsResource = sheetsService.Spreadsheets.Values;
 
-            var valueRange = new ValueRange
-            {
-                Values = new List<IList<object>>()
-                {
-                    new List<object>() { "НАЗВАНИЕ ПРОЕКТА" },
-                    new List<object>() { "НЕОБХОДИМО СРЕДСТВ" },
-                    new List<object>() { "СОБРАНО" }
-                }
-            };
+        //    var valueRange = new ValueRange
+        //    {
+        //        Values = new List<IList<object>>()
+        //        {
+        //            new List<object>() { "НАЗВАНИЕ ПРОЕКТА" },
+        //            new List<object>() { "НЕОБХОДИМО СРЕДСТВ" },
+        //            new List<object>() { "СОБРАНО" }
+        //        }
+        //    };
 
-            var updateRequest = sheetsResource.Update(valueRange, sheetId, "A1:C1");
-            updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
-            await updateRequest.ExecuteAsync();
-        }
+        //    var updateRequest = sheetsResource.Update(valueRange, sheetId, "A1:C1");
+        //    updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+        //    await updateRequest.ExecuteAsync();
+        //}
     }
 }
