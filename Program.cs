@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,15 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using static Google.Apis.Requests.BatchRequest;
+using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
+using Google;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,11 +47,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+builder.Services.AddSingleton(provider =>
+{
+    var credPath = "credentials.json";
+    if (!File.Exists(credPath)) throw new FileNotFoundException(credPath);
+
+    using var stream = new FileStream(credPath, FileMode.Open, FileAccess.Read);
+    var credential = GoogleCredential.FromStream(stream).CreateScoped(SheetsService.Scope.Spreadsheets);
+
+    return new SheetsService(new BaseClientService.Initializer()
+    {
+        HttpClientInitializer = credential,
+        ApplicationName = "ERP_PROFLIPPER"
+    });
+});
+
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("OnlyForPM", policy =>
         policy.RequireRole("ProjectManager"));
 });
+
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing =>
