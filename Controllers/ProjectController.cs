@@ -30,7 +30,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/projects")]
-        //[Authorize(Roles = "ProjectManager")]
+        [Authorize(Roles = "ProjectManager")]
         [Authorize(Policy = "OnlyForPM")]
         public async Task<StatusCodeResult> AddProjectInDB() //READY
         {
@@ -58,6 +58,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ProjectManager")]
         [Route("/projects")]
         [Authorize(Policy = "OnlyForPM")]
         public async Task<JsonResult> GetProjects() //NEED TEST //params string accessibleStatus
