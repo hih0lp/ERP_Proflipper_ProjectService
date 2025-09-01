@@ -119,10 +119,5 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             return await ProjectDAO.DeleteProjectAsync(id) ? Ok() : BadRequest();
         }
-
-
-
-        
-
     }
 }
