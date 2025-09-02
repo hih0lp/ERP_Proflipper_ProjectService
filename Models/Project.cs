@@ -9,6 +9,7 @@ using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace ERP_Proflipper_WorkspaceService.Models
 {
@@ -68,13 +69,25 @@ namespace ERP_Proflipper_WorkspaceService.Models
             using(var db = new ProjectsDB())
             {
                 var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
-                changableProject = modifiedProject;
+
+                changableProject.IsFinished = modifiedProject.IsFinished;
+                changableProject.Name = modifiedProject.Name;
+                changableProject.Area = modifiedProject.Area;
+                changableProject.IsPaused = modifiedProject.IsPaused;
+                changableProject.Comment = modifiedProject.Comment;
+                changableProject.Condition = modifiedProject.Condition;
+                changableProject.CreatedAt = modifiedProject.CreatedAt;
+                changableProject.UpdatedAt = modifiedProject.UpdatedAt;
+                changableProject.Price = modifiedProject.Price;
+                changableProject.Location = modifiedProject.Location;
+                changableProject.NowStatus = modifiedProject.NowStatus;
+                changableProject.Responsible = modifiedProject.Responsible;
 
                 //db.Update(changableProject); //1
                 //db.Attach(changableProject); //2
                 //db.Entry(changableProject).State = EntityState.Modified; //3
 
-                db.Entry(changableProject).CurrentValues.SetValues(modifiedProject);
+                //db.Entry(changableProject).CurrentValues.SetValues(modifiedProject);
 
                 await db.SaveChangesAsync(); //4
             }
