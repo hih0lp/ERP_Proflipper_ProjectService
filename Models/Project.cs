@@ -70,10 +70,8 @@ namespace ERP_Proflipper_WorkspaceService.Models
             {
                 var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
 
-                changableProject.IsFinished = modifiedProject.IsFinished;
                 changableProject.Name = modifiedProject.Name;
                 changableProject.Area = modifiedProject.Area;
-                changableProject.IsPaused = modifiedProject.IsPaused;
                 changableProject.Comment = modifiedProject.Comment;
                 changableProject.Condition = modifiedProject.Condition;
                 changableProject.CreatedAt = modifiedProject.CreatedAt;
