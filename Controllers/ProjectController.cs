@@ -58,9 +58,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "ProjectManager")]
+        //[Authorize(Roles = "ProjectManager")]
         [Route("/projects")]
-        [Authorize(Policy = "OnlyForPM")]
+        //[Authorize(Policy = "OnlyForPM")]
         public async Task<JsonResult> GetProjects() //NEED TEST //params string accessibleStatus
         {
             var projects = await ProjectDAO.GetProjectsAsync(); //uncomment in future
