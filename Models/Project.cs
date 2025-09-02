@@ -71,8 +71,10 @@ namespace ERP_Proflipper_WorkspaceService.Models
                 changableProject = modifiedProject;
 
                 //db.Update(changableProject); //1
-                db.Attach(changableProject); //2
+                //db.Attach(changableProject); //2
                 //db.Entry(changableProject).State = EntityState.Modified; //3
+
+                db.Entry(changableProject).CurrentValues.SetValues(modifiedProject);
 
                 await db.SaveChangesAsync(); //4
             }
