@@ -71,15 +71,15 @@ namespace ERP_Proflipper_WorkspaceService.Models
                 var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
 
                 changableProject.Name = modifiedProject.Name;
-                changableProject.Area = modifiedProject.Area;
-                changableProject.Comment = modifiedProject.Comment;
-                changableProject.Condition = modifiedProject.Condition;
-                changableProject.CreatedAt = modifiedProject.CreatedAt;
-                changableProject.UpdatedAt = modifiedProject.UpdatedAt;
-                changableProject.Price = modifiedProject.Price;
-                changableProject.Location = modifiedProject.Location;
                 changableProject.NowStatus = modifiedProject.NowStatus;
+                changableProject.Location = modifiedProject.Location;
+                changableProject.Condition = modifiedProject.Condition;
                 changableProject.Responsible = modifiedProject.Responsible;
+                changableProject.CreatedAt = modifiedProject.CreatedAt;
+                changableProject.Comment = modifiedProject.Comment;
+                changableProject.UpdatedAt = modifiedProject.UpdatedAt;
+                changableProject.Area = modifiedProject.Area;
+                changableProject.Price = modifiedProject.Price;
 
                 //db.Update(changableProject); //1
                 //db.Attach(changableProject); //2
