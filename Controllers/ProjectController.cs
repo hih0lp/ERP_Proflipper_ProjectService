@@ -61,9 +61,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects")]
         [Authorize(Roles = "ProjectManager")]
         //[Authorize(Policy = "OnlyForPM")]
-        public async Task<JsonResult> GetProjects() //NEED TEST //params string accessibleStatus
+        public async Task<JsonResult> GetProjects(string status = null) //NEED TEST //params string accessibleStatus
         {
-            var projects = await ProjectDAO.GetProjectsAsync(); //uncomment in future
+            var projects = await ProjectDAO.GetProjectsAsync(status); 
 
             return Json(projects);
         }

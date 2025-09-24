@@ -43,15 +43,26 @@ namespace ERP_Proflipper_WorkspaceService.Models
         }
       
         ////////каждая отдельная роль получает проекты согласно своей роли
-        public static async Task<List<Project>> GetProjectsAsync()
+        public static async Task<List<Project>> GetProjectsAsync(string status)
         {
-            //projects can be seen by all people who have access to the projects
-            using (var db = new ProjectsDB())
+            //filtering by status
+            if(status is null)
             {
-                var projects = db.Projects.Where(x => !x.IsFinished).ToList();
+                using (var db = new ProjectsDB())
+                {
+                    var projects = db.Projects.Where(x => !x.IsFinished).ToList();
 
-                return projects;
+                    return projects;
+                }
             }
+            else
+            {
+                using (var db = new ProjectsDB())
+                {
+                    return db.Projects.Where(x => !x.IsFinished).Where(t => t.NowStatus == status).ToList();
+                }
+            }
+            
         }
 
         public static async Task<Project> GetProjectAsync(int id)
