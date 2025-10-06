@@ -13,7 +13,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string? BuilderCardJson { get; set; }
         //public BuilderCardModel BuilderCardModel { get; set; }
         public string? LawyerCardJson { get; set; }
-        //public LawyerCardModel LawyerCardModel { get; set; }
+        //public LawyerCardModel LawyerCardModel { get; set; }+
         public string NowStatus { get; set; }
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
