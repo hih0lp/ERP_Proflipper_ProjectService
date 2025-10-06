@@ -49,9 +49,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpPut]
-        [Route("/project/edit/{id}")]
-        public async Task<StatusCodeResult> EditProject(string id, [FromBody]Project project)
+        [Route("/project/edit")]
+        public async Task<StatusCodeResult> EditProject()
         {
+            var project = await Request.ReadFromJsonAsync<Project>();
+
+
+            _logger.LogInformation(project.Id);
+
             await ProjectDAO.EditProjectAsync(project, null);
 
             return Ok();
