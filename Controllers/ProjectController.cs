@@ -48,6 +48,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return Ok(Json(id)); //return id
         }
 
+        [HttpPut]
+        [Route("/project/edit/{id}")]
+        public async Task<StatusCodeResult> EditProject(string id,[FromBody]Project project)
+        {
+            await ProjectDAO.EditProjectAsync(project, null);
+
+            return Ok();
+        }
+
         [HttpPost]
         [Route("/project/to-pm-approve")]
         public async Task<IActionResult> SendToApproveWithOpenAccess()
