@@ -14,13 +14,21 @@ namespace ERP_Proflipper_WorkspaceService
         }
 
         public DbSet<Project> Projects { get; set; }
-        //public DbSet<>
+        public DbSet<RolesRules> RolesRules { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
         }
 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Project>()
+                .HasMany<RolesRules>()
+                .WithOne(t => t.Project)
+                .HasForeignKey(t => t.ProjectId);
+        }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    modelBuilder.Entity<Project>()
