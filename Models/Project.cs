@@ -1,5 +1,6 @@
 ﻿using ERP_Proflipper_ProjectService.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ERP_Proflipper_WorkspaceService.Models
 {
@@ -14,7 +15,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         //public BuilderCardModel BuilderCardModel { get; set; }
         public string? LawyerCardJson { get; set; }
         //public LawyerCardModel LawyerCardModel { get; set; }+
-        public string NowStatus { get; set; }
+        public string NowStatus { get; set; } = "Потенциальный"; //put in some status
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
         public List<RolesRules> Rules { get; set; } = new()
@@ -24,8 +25,8 @@ namespace ERP_Proflipper_WorkspaceService.Models
             new RolesRules() {RoleName = "Financier", CanRead = false, CanWrite = false},
             new RolesRules() {RoleName = "Builder", CanRead = false, CanWrite = false}
         };
-        public string Responsible { get; set; }
-        public int ApproveStatus { get; set; }
+        public string? Responsible { get; set; }
+        public int? ApproveStatus { get; set; }
     }
 
 
@@ -37,6 +38,11 @@ namespace ERP_Proflipper_WorkspaceService.Models
             using (var db = new ProjectsDB())
             {
                 project.Id = Guid.NewGuid().ToString();
+
+                foreach (var rule in project.Rules)
+                {
+                    rule.ProjectId = project.Id;
+                }
 
                 await db.Projects.AddAsync(project);
                 await db.SaveChangesAsync();

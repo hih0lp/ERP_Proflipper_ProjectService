@@ -42,7 +42,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> CreateProject()
         {
             Project project = new Project();
-            var id = ProjectDAO.AddProjectInDB(project); //get project id when it is already in db
+
+            var id = await ProjectDAO.AddProjectInDB(project); //get project id when it is already in db
 
             return Ok(Json(id)); //return id
         }
