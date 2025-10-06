@@ -26,7 +26,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
             new RolesRules() {RoleName = "Builder", CanRead = false, CanWrite = false}
         };
         public string? Responsible { get; set; }
-        public int? ApproveStatus { get; set; }
+        public int? ApproveStatus { get; set; } = 0;
     }
 
 
@@ -129,10 +129,9 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
 
                 changableProject.NowStatus = modifiedProject.NowStatus;
-                changableProject.Rules = modifiedProject.Rules;
+                //changableProject.Rules = modifiedProject.Rules;
                 changableProject.IsFinished = modifiedProject.IsFinished;
                 changableProject.IsArchived = modifiedProject.IsArchived;
-                changableProject.ApproveStatus = modifiedProject.ApproveStatus;
 
                 await db.SaveChangesAsync(); 
             }
