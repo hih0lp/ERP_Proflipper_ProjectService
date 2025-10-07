@@ -156,7 +156,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         [Route("/projects/{role}")]
-        public async Task<IActionResult> GetProjectByRoleAndId(string role)
+        public async Task<IActionResult> GetProjectByRole(string role)
         {
             return Ok(await ProjectDAO.GetAllProjectsByRoleAsync(role));
         }
