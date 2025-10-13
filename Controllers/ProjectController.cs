@@ -76,18 +76,18 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 rule.CanWrite = false;
             }
 
-            var notificationJSON = JsonSerializer.Serialize($"Проект был согласован финансистом, юристом, застройщиком, ссылка на проект "); //Here you need to insert a link to receive the project
+            var notificationJSON = JsonSerializer.Serialize($"Проектный менеджер отправил вам проект на согласование!"); //Here you need to insert a link to receive the project
             var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
             var serviceKey = _config["NotificationService"];
             content.Headers.Add("X-KEY", serviceKey);
 
 
-            var response = await _httpClient.PostAsync($"https://localhost:7118/user/{123}", content); //in parentheses must be login or name of Timur Rashidovich
+            var response = await _httpClient.PostAsync($"https://localhost:7118/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
             response.EnsureSuccessStatusCode(); //add check-in
 
             await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
 
-            return Ok();
+            return Ok(Json("investors/investorList/investorCard/projectCard"));
         }
 
 
@@ -147,7 +147,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 content.Headers.Add("X-KEY", serviceKey);
 
 
-                var response = await _httpClient.PostAsync($"https://localhost:7118/user/{123}", content); //in parentheses must be login or name of Timur Rashidovich
+                var response = await _httpClient.PostAsync($"https://localhost:7118/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
                 response.EnsureSuccessStatusCode(); //add check-in
 
                 return Ok();
