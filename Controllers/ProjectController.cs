@@ -84,19 +84,23 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
             var response = await _httpClient.PostAsync($"http://localhost:5079/user/OlegAss", content); //in parentheses must be login or name of Timur Rashidovich
+
             try
             {
-                response.EnsureSuccessStatusCode();
+                if (response.EnsureSuccessStatusCode().IsSuccessStatusCode)
+                {
+                    await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
+
+                    return Ok(Json("investors/investorList/investorCard/projectCard"));
+                }
+
+                return BadRequest();
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest();
             }
-
-            await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
-
-            return Ok(Json("investors/investorList/investorCard/projectCard"));
         }
 
 
@@ -129,6 +133,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await ProjectDAO.GetProjectByIdAsync(projectId);
 
             var response = await httpClient.PostAsync($"http://localhost:5079/user/{project.Responsible}", content);
+            
             response.EnsureSuccessStatusCode(); //add check-in
 
             return Ok();
