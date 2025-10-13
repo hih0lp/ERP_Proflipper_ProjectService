@@ -79,8 +79,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var notificationJSON = JsonSerializer.Serialize(new
             {
-                NotificationMessage = "HELP ME PLS"
+                NotificationMessage = "HELP ME PLS",
+                RedirectUri = "investors/investorList/investorCard/projectCard"
             }); //Here you need to insert a link to receive the project
+
             var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
             var serviceKey = _config["NotificationService"];
             content.Headers.Add("X-KEY", serviceKey);
