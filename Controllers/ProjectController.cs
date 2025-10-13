@@ -182,6 +182,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return Json(await ProjectDAO.GetAllProjectsByStatus(status));
         }
 
+        [HttpGet]
+        [Route("/projects/get-by-id/{id}")]
+        public async Task<JsonResult> GetProjectsById(string id)
+        {
+            return Json(await ProjectDAO.GetProjectByIdAsync(id));
+        }
+
 
 
         //[HttpPost]
