@@ -77,7 +77,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 rule.CanWrite = false;
             }
 
-            var notificationJSON = JsonSerializer.Serialize("HELP ME PLS"); //Here you need to insert a link to receive the project
+            var notificationJSON = JsonSerializer.Serialize(new
+            {
+                NotificationMessage = "HELP ME PLS"
+            }); //Here you need to insert a link to receive the project
             var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
             var serviceKey = _config["NotificationService"];
             content.Headers.Add("X-KEY", serviceKey);
