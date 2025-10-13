@@ -80,7 +80,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var notificationJSON = JsonSerializer.Serialize(new
             {
                 NotificationMessage = "HELP ME PLS",
-                RedirectUri = "investors/investorList/investorCard/projectCard"
+                RedirectUri = $"investors/investorList/investorCard/projectCard?id={project.Id}"
             }); //Here you need to insert a link to receive the project
 
             var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
@@ -98,7 +98,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
 
-                return Ok(Json("investors/investorList/investorCard/projectCard"));
+                return Ok();
                 
             }
             catch (HttpRequestException e)
