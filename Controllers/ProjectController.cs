@@ -83,8 +83,16 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             content.Headers.Add("X-KEY", serviceKey);
 
 
-            var response = await _httpClient.PostAsync($"https://localhost:7118/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
-            response.EnsureSuccessStatusCode(); //add check-in
+            var response = await _httpClient.PostAsync($"http://localhost:5079/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest();
+            }
 
             await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
 
@@ -120,7 +128,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var project = await ProjectDAO.GetProjectByIdAsync(projectId);
 
-            var response = await httpClient.PostAsync($"https://localhost:7118/user/{project.Responsible}", content);
+            var response = await httpClient.PostAsync($"http://localhost:5079/user/{project.Responsible}", content);
             response.EnsureSuccessStatusCode(); //add check-in
 
             return Ok();
@@ -151,7 +159,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 content.Headers.Add("X-KEY", serviceKey);
 
 
-                var response = await _httpClient.PostAsync($"https://localhost:7118/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
+                var response = await _httpClient.PostAsync($"http://localhost:5079/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
                 response.EnsureSuccessStatusCode(); //add check-in
 
                 return Ok();
