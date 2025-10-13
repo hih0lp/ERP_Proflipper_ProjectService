@@ -19,6 +19,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 {
     public class ProjectController : Controller
     {
+        private readonly HttpClient _httpClient = new();
         private readonly IConfiguration _config;
         ProjectValidator projectValidator = new ProjectValidator(); //custom validator
         private ILogger<ProjectController> _logger;
@@ -75,6 +76,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 rule.CanWrite = false;
             }
 
+            var notificationJSON = JsonSerializer.Serialize($"Проект был согласован финансистом, юристом, застройщиком, ссылка на проект "); //Here you need to insert a link to receive the project
+            var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
+            var serviceKey = _config["NotificationService"];
+            content.Headers.Add("X-KEY", serviceKey);
+
+
+            var response = await _httpClient.PostAsync($"https://localhost:7118/user/{123}", content); //in parentheses must be login or name of Timur Rashidovich
+            response.EnsureSuccessStatusCode(); //add check-in
+
             await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
 
             return Ok();
@@ -129,7 +139,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             if (project.ApproveStatus == Mask)
             {
-                HttpClient httpClient = new HttpClient();
+                //HttpClient httpClient = new HttpClient();
 
                 var notificationJSON = JsonSerializer.Serialize($"Проект был согласован финансистом, юристом, застройщиком, ссылка на проект "); //Here you need to insert a link to receive the project
                 var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
@@ -137,7 +147,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 content.Headers.Add("X-KEY", serviceKey);
 
 
-                var response = await httpClient.PostAsync($"https://localhost:7118/user/{123}", content); //in parentheses must be login or name of Timur Rashidovich
+                var response = await _httpClient.PostAsync($"https://localhost:7118/user/{123}", content); //in parentheses must be login or name of Timur Rashidovich
                 response.EnsureSuccessStatusCode(); //add check-in
 
                 return Ok();
@@ -155,12 +165,18 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
-        [Route("/projects/{role}")]
-        public async Task<IActionResult> GetProjectByRole(string role)
+        [Route("/projects/role={role}")]
+        public async Task<IActionResult> GetProjectsByRole(string role)
         {
             return Ok(await ProjectDAO.GetAllProjectsByRoleAsync(role));
         }
 
+        [HttpGet]
+        [Route("/projects/status={status}")]
+        public async Task<JsonResult> GetProjectsByStatus(string status)
+        {
+            return Json(await ProjectDAO.GetAllProjectsByStatus(status));
+        }
 
 
 

@@ -203,7 +203,13 @@ namespace ERP_Proflipper_WorkspaceService.Models
             };
         }
 
-
+        public static async Task<List<Project>> GetAllProjectsByStatus(string status)
+        {
+            using (var db = new ProjectsDB())
+            {
+                return db.Projects.Where(x => x.NowStatus == status).ToList();
+            }
+        }
 
         //public static async Task<Result> CreateGoogleProjectSheet(IConfiguration configuration, string projectName, SheetsService sheetsService)
         //{
