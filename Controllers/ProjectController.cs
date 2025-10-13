@@ -87,16 +87,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             try
             {
-                if (response.EnsureSuccessStatusCode().IsSuccessStatusCode)
-                {
-                    await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
+                response.EnsureSuccessStatusCode();
+                await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
 
-                    return Ok(Json("investors/investorList/investorCard/projectCard"));
-                }
-
-                return BadRequest();
+                return Ok(Json("investors/investorList/investorCard/projectCard"));
+                
             }
-            catch (Exception e)
+            catch (HttpRequestException e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest();
