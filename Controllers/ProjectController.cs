@@ -77,13 +77,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 rule.CanWrite = false;
             }
 
-            var notificationJSON = JsonSerializer.Serialize($"Проектный менеджер отправил вам проект на согласование!"); //Here you need to insert a link to receive the project
+            var notificationJSON = JsonSerializer.Serialize($"HELP ME PLS"); //Here you need to insert a link to receive the project
             var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
             var serviceKey = _config["NotificationService"];
             content.Headers.Add("X-KEY", serviceKey);
 
 
-            var response = await _httpClient.PostAsync($"http://localhost:5079/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
+            var response = await _httpClient.PostAsync($"http://localhost:5079/user/OlegAss", content); //in parentheses must be login or name of Timur Rashidovich
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -153,13 +153,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 //HttpClient httpClient = new HttpClient();
 
-                var notificationJSON = JsonSerializer.Serialize($"Проект был согласован финансистом, юристом, застройщиком, ссылка на проект "); //Here you need to insert a link to receive the project
+                var notificationJSON = JsonSerializer.Serialize($"HELP ME PLS"); //Here you need to insert a link to receive the project
                 var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
                 var serviceKey = _config["NotificationService"];
                 content.Headers.Add("X-KEY", serviceKey);
 
 
-                var response = await _httpClient.PostAsync($"http://localhost:5079/user/ОлежикНавсегдаНаЕРП", content); //in parentheses must be login or name of Timur Rashidovich
+                var response = await _httpClient.PostAsync($"http://localhost:5079/user/OlegAss", content); //in parentheses must be login or name of Timur Rashidovich
                 response.EnsureSuccessStatusCode(); //add check-in
 
                 return Ok();
