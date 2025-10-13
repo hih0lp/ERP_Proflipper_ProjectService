@@ -25,6 +25,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
             new RolesRules() {RoleName = "Financier", CanRead = false, CanWrite = false},
             new RolesRules() {RoleName = "Builder", CanRead = false, CanWrite = false}
         };
+        public string? SubStatus { get; set; }
         public string? Responsible { get; set; }
         public int? ApproveStatus { get; set; } = 0;
     }

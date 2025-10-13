@@ -43,6 +43,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> CreateProject()
         {
             Project project = new Project();
+            project.NowStatus = "Potential";
 
             var id = await ProjectDAO.AddProjectInDB(project); //get project id when it is already in db
 
@@ -96,7 +97,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> DisapproveProject(string id)
         {
             var project = await ProjectDAO.GetProjectByIdAsync(id);
+
             project.IsArchived = true;
+            project.NowStatus = "Archived";
+
             await ProjectDAO.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
 
             return Ok();
