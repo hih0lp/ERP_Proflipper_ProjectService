@@ -1,6 +1,7 @@
 //using System.ComponentModel.DataAnnotations;
 using ERP_Proflipper_ProjectService;
 using ERP_Proflipper_ProjectService.Models;
+using ERP_Proflipper_ProjectService.Repositories.Ports;
 using ERP_Proflipper_WorkspaceService.Models;
 using FluentResults;
 using FluentValidation;
@@ -13,6 +14,9 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using ERP_Proflipper_ProjectService.Services;
+using ERP_Proflipper_ProjectService.Repositories.Interface;
+
 
 
 namespace ERP_Proflipper_WorkspaceService.Controllers
@@ -20,16 +24,20 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
     public class ProjectController : Controller
     {
         private readonly HttpClient _httpClient = new();
+        private readonly IProjectRepository _projectRepository;
+        private readonly ProjectService _projectService;
         private readonly IConfiguration _config;
-        ProjectValidator projectValidator = new ProjectValidator(); //custom validator
+        //ProjectValidator projectValidator = new ProjectValidator(); //custom validator
         private ILogger<ProjectController> _logger;
         private const int Mask = 0b111;
         //private ProjectDAO _projectDAO = new();
 
-        public ProjectController(ILogger<ProjectController> logger, IConfiguration config)
+        public ProjectController(ILogger<ProjectController> logger, IConfiguration config, IProjectRepository projectRepository, ProjectService projectService)
         {
             _logger = logger;
             _config = config;
+            _projectRepository = projectRepository;
+            _projectService = projectService;
         }
 
         public IActionResult Index()
@@ -45,21 +53,21 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             Project project = new Project();
             project.NowStatus = "Potential";
 
-            var id = await ProjectDAO.AddProjectInDB(project); //get project id when it is already in db
+            var id = await _projectService.CreateProjectInDB(project); //get project id when it is already in db
 
             return Ok(Json(id)); //return id
         }
 
         [HttpPut]
         [Route("/project/edit")]
-        public async Task<StatusCodeResult> EditProject()
+        public async Task<StatusCodeResult> EditProjectAsync()
         {
             var project = await Request.ReadFromJsonAsync<Project>();
 
 
             _logger.LogInformation(project.Id);
 
-            await ProjectDAO.EditProjectAsync(project, null);
+            await _projectService.EditProjectAsync(project, null);
 
             return Ok();
         }
@@ -73,39 +81,16 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             foreach (var rule in project.Rules)
             {
-                rule.CanRead = false;
-                rule.CanWrite = false;
+                rule.CanRead = true;
+                rule.CanWrite = true;
             }
+            await _projectRepository.UpdateAsync(project, null);
 
-            var notificationJSON = JsonSerializer.Serialize(new
-            {
-                NotificationMessage = "HELP ME PLS",
-                RedirectUri = $"investors/investorList/investorCard/projectCard?id={project.Id}"
-            }); //Here you need to insert a link to receive the project
+            var content = CreateContentWithURI("HELP ME PLS", $"investors/investorList/investorCard/projectCard?id={project.Id}");
 
-            var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
-            var serviceKey = _config["NotificationService"];
-            content.Headers.Add("X-KEY", serviceKey);
-
-
-            var response = await _httpClient.PostAsync($"http://localhost:5079/user/OlegAss", content); //in parentheses must be login or name of Timur Rashidovich
-            _logger.LogInformation(project.Id);
-            try
-            {
-
-                response.EnsureSuccessStatusCode();
-                _logger.LogInformation("Succes");
-
-                await ProjectDAO.EditProjectAsync(project, null); //when it is time to deploy or test with different roles null will be role
-
-                return Ok();
-                
-            }
-            catch (HttpRequestException e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest();
-            }
+            var result = await _projectService.NotificateAsync("OlegAss", content);
+            
+            return result.IsSuccess ? Ok() : BadRequest(result.Errors);
         }
 
 
@@ -113,12 +98,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/disapprove-project/{id}")]
         public async Task<IActionResult> DisapproveProject(string id)
         {
-            var project = await ProjectDAO.GetProjectByIdAsync(id);
+            var project = await _projectRepository.GetProjectByIdAsync(id);
 
             project.IsArchived = true;
             project.NowStatus = "Archived";
 
-            await ProjectDAO.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
+            await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
 
             return Ok();
         }
@@ -128,20 +113,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/finalize-project/{projectId}")]
         public async Task<IActionResult> ToFinalizeProject(string projectId, string message)
         {
-            HttpClient httpClient = new HttpClient();
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            var notificationJSON = JsonSerializer.Serialize(message);
-            var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
-            var serviceKey = _config["NotificationService"];
-            content.Headers.Add("X-KEY", serviceKey);
+            var content = CreateContentWithoutURI(message);
+            var result = await _projectService.NotificateAsync("OlegAss", content);
 
-            var project = await ProjectDAO.GetProjectByIdAsync(projectId);
-
-            var response = await httpClient.PostAsync($"http://localhost:5079/user/{project.Responsible}", content);
-            
-            response.EnsureSuccessStatusCode(); //add check-in
-
-            return Ok();
+            return result.IsSuccess ? Ok() : BadRequest(result.Errors); ;
         }
 
 
@@ -149,7 +126,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/to-all-approve/{projectId}/{role}")]
         public async Task<IActionResult> ToApproveProject(string projectId, string role)
         {
-            var project = await ProjectDAO.GetProjectByIdAsync(projectId);
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
             project.ApproveStatus |= role switch
             {
@@ -163,14 +140,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 //HttpClient httpClient = new HttpClient();
 
-                var notificationJSON = JsonSerializer.Serialize($"HELP ME PLS"); //Here you need to insert a link to receive the project
-                var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
-                var serviceKey = _config["NotificationService"];
-                content.Headers.Add("X-KEY", serviceKey);
-
-
-                var response = await _httpClient.PostAsync($"http://localhost:5079/user/OlegAss", content); //in parentheses must be login or name of Timur Rashidovich
-                response.EnsureSuccessStatusCode(); //add check-in
+                var content = CreateContentWithoutURI("OlegAss");
+                var result = _projectService.NotificateAsync("OlegAss", content);
 
                 return Ok();
             }
@@ -180,7 +151,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 project.NowStatus = "In progress";
             }
 
-            await ProjectDAO.EditProjectAsync(project, null); //the same thing with role
+            await _projectService.EditProjectAsync(project, null); //the same thing with role
 
             return Ok();    
 
@@ -190,21 +161,21 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/role={role}")]
         public async Task<IActionResult> GetProjectsByRole(string role)
         {
-            return Ok(await ProjectDAO.GetAllProjectsByRoleAsync(role));
+            return Ok(await _projectRepository.GetAllProjectsByRoleAsync(role));
         }
 
         [HttpGet]
         [Route("/projects/status={status}")]
         public async Task<JsonResult> GetProjectsByStatus(string status)
         {
-            return Json(await ProjectDAO.GetAllProjectsByStatus(status));
+            return Json(await _projectRepository.GetAllProjectsByStatus(status));
         }
 
         [HttpGet]
         [Route("/projects/get-by-id/{id}")]
         public async Task<JsonResult> GetProjectsById(string id)
         {
-            return Json(await ProjectDAO.GetProjectByIdAsync(id));
+            return Json(await _projectRepository.GetProjectByIdAsync(id));
         }
 
 
@@ -306,5 +277,34 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         //{
         //    return await ProjectDAO.DeleteProjectAsync(id) ? Ok() : BadRequest();
         //}
+
+        private HttpContent CreateContentWithURI(string message, string redirectURI)
+        {
+            var notificationJSON = JsonSerializer.Serialize(new
+            {
+                NotificationMessage = message,
+                RedirectUri = redirectURI
+            }); //Here you need to insert a link to receive the project
+
+            var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
+            var serviceKey = _config["NotificationService"];
+            content.Headers.Add("X-KEY", serviceKey);
+
+            return content;
+        }
+
+        private HttpContent CreateContentWithoutURI(string message)
+        {
+            var notificationJSON = JsonSerializer.Serialize(new
+            {
+                NotificationMessage = message,
+            }); //Here you need to insert a link to receive the project
+
+            var content = new StringContent(notificationJSON, Encoding.UTF8, "application/json");
+            var serviceKey = _config["NotificationService"];
+            content.Headers.Add("X-KEY", serviceKey);
+
+            return content;
+        }
     }
 }

@@ -8,19 +8,15 @@ namespace ERP_Proflipper_WorkspaceService.Models
     {
         public string? Id { get; set; }
         public string? PMCardJson { get; set; }
-        //public PMCardModel PMCardModel { get; set; }
         public string? FinancierCardJson { get; set; }
-        //public FinancierCardModel FinancierCardModel { get; set; }
         public string? BuilderCardJson { get; set; }
-        //public BuilderCardModel BuilderCardModel { get; set; }
         public string? LawyerCardJson { get; set; }
-        //public LawyerCardModel LawyerCardModel { get; set; }+
         public string NowStatus { get; set; } = "Потенциальный"; //put in some status
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
         public List<RolesRules> Rules { get; set; } = new()
         {
-            new RolesRules() {RoleName = "ProjectManager", CanRead= true, CanWrite = true},
+            new RolesRules() {RoleName = "ProjectManager", CanRead = true, CanWrite = true},
             new RolesRules() {RoleName = "Lawyer", CanRead = false, CanWrite = false},
             new RolesRules() {RoleName = "Financier", CanRead = false, CanWrite = false},
             new RolesRules() {RoleName = "Builder", CanRead = false, CanWrite = false}
@@ -34,32 +30,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
 
     public static class ProjectDAO
     {
-        public static async Task<string> AddProjectInDB(Project project)
-        {
-            using (var db = new ProjectsDB())
-            {
-                project.Id = Guid.NewGuid().ToString();
-
-                foreach (var rule in project.Rules)
-                {
-                    rule.ProjectId = project.Id;
-                }
-
-                await db.Projects.AddAsync(project);
-                await db.SaveChangesAsync();
-
-                return project.Id;
-            }
-
-            //using (var db = new ProjectsDB())
-            //{
-            //    Project project = new Project();
-            //    project.PMCardJson = pmCard;
-
-            //    db.Projects.Add(project);
-            //    await db.SaveChangesAsync();
-            //}
-        }
+        
 
         //public async Task<Result> 
 
@@ -99,118 +70,10 @@ namespace ERP_Proflipper_WorkspaceService.Models
         //    }
         //}
 
-        public static async Task EditProjectAsync(Project modifiedProject, string role) //mb need to add something like a check an accessibility of db, params string modifable project card
-        {
-            using(var db = new ProjectsDB())
-            {
-                var changableProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
-                changableProject.FinancierCardJson = modifiedProject.FinancierCardJson;
-                changableProject.PMCardJson = modifiedProject.PMCardJson;
-                changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
-                changableProject.LawyerCardJson = modifiedProject.LawyerCardJson;
-
-
-
-                //UPDATE
-                //switch (role)
-                //{
-                //    case "ProjectManager": 
-                //        changableProject.PMCardJson = modifiedProject.PMCardJson;
-                //        break;
-                //    case "Financier":
-                //        changableProject.FinancierCardJson = modifiedProject.FinancierCardJson;
-                //        break;
-                //    case "Builder":
-                //        changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
-                //        break;
-                //    case "Lawyer":
-                //        changableProject.LawyerCardJson = modifiedProject.LawyerCardJson;
-                //        break;
-                //}
-
-
-                changableProject.NowStatus = modifiedProject.NowStatus;
-                //changableProject.Rules = modifiedProject.Rules;
-                changableProject.IsFinished = modifiedProject.IsFinished;
-                changableProject.IsArchived = modifiedProject.IsArchived;
-
-                await db.SaveChangesAsync(); 
-            }
-        }
+        
       
       
-        public static async void ChangeProjectStatus(Project project, string nextStatus)
-        {
-            //only director can finish project
-            using (var db = new ProjectsDB())
-            {
-                project.NowStatus = nextStatus;
-                db.Projects.Update(project);
-                db.SaveChanges();
-              
-            }
-        }
-              
-              
-              
-        public static async Task<bool> DeleteProjectAsync(string id)
-        {
-            using (var db = new ProjectsDB())
-            {
-                var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
-
-                if (project == null) return false;
-
-                db.Remove<Project>(project);
-                await db.SaveChangesAsync();
-
-                return true;
-            }
-        }
-
-        public static async Task<Project> GetProjectByIdAsync(string id)
-        {
-            using var db = new ProjectsDB();
-            return db.Projects.FirstOrDefault(p => p.Id == id);
-
-
-        }
-
-        public static async Task<List<Project>> GetAllProjectsAsync()
-        {
-            using var db = new ProjectsDB();
-
-            return await db.Projects.ToListAsync();
-        }
-
-        public static async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //gettind all projects by user role
-        {
-            using var db = new ProjectsDB();
-            var projectsList = await db.Projects.Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) && x.IsArchived == false && x.IsFinished == false).ToListAsync();
-
-            return projectsList;
-        }
-
-        public static async Task<string> GetProjectCardByRoleAndId(string projectId, string role) //getting card project by role and project id
-        {
-            var project = await ProjectDAO.GetProjectByIdAsync(projectId);
-
-            return role switch
-            {
-                "ProjectManager" => project.PMCardJson,
-                "Builder" => project.BuilderCardJson,
-                "Financier" => project.FinancierCardJson,
-                "Lawyer" => project.LawyerCardJson
-            };
-        }
-
-        public static async Task<List<Project>> GetAllProjectsByStatus(string status)
-        {
-            using (var db = new ProjectsDB())
-            {
-                return db.Projects.Where(x => x.NowStatus == status).ToList();
-            }
-        }
+        
 
         //public static async Task<Result> CreateGoogleProjectSheet(IConfiguration configuration, string projectName, SheetsService sheetsService)
         //{

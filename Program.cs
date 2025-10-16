@@ -1,10 +1,21 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using ERP_Proflipper_ProjectService.Repositories.Interface;
+using ERP_Proflipper_ProjectService.Repositories.Ports;
+using ERP_Proflipper_ProjectService.Services;
+using ERP_Proflipper_WorkspaceService;
+using Google;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -15,11 +26,6 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using static Google.Apis.Requests.BatchRequest;
 using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
-using Google;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
 
 
 
@@ -29,6 +35,14 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IProjectRepository, ProjectRepository>();
+builder.Services.AddSingleton<ProjectService>();
+
+builder.Services.AddDbContext<ProjectsDB>(options =>
+{
+    options.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
+    options.EnableSensitiveDataLogging();
+}, ServiceLifetime.Scoped); 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
