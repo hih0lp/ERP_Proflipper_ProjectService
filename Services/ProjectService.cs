@@ -1,8 +1,10 @@
 ﻿using ERP_Proflipper_ProjectService.Models;
+using ERP_Proflipper_ProjectService.Repositories.Interface;
 using ERP_Proflipper_ProjectService.Repositories.Ports;
 using ERP_Proflipper_WorkspaceService;
 using ERP_Proflipper_WorkspaceService.Models;
 using FluentResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -27,6 +29,7 @@ namespace ERP_Proflipper_ProjectService.Services
         public async Task<string> CreateProjectInDB(Project project)
         {
             project.Id = Guid.NewGuid().ToString();
+            project.NowStatus = "Potential";
 
             List<RolesRules> rolesRules = new List<RolesRules>()
             {
@@ -93,6 +96,18 @@ namespace ERP_Proflipper_ProjectService.Services
             {
                 return Result.Fail(e.Message);
             }
+        }
+
+        public async Task SendToApproveWithOpenAccess(Project project)
+        {
+            project.NowStatus = "Approving";
+
+            foreach (var rule in project.Rules)
+            {
+                rule.CanRead = true;
+                rule.CanWrite = true;
+            }
+            await _repository.UpdateAsync(project, null);
         }
     }
 }

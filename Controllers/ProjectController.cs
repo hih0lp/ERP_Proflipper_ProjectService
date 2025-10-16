@@ -51,7 +51,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> CreateProject()
         {
             Project project = new Project();
-            project.NowStatus = "Potential";
 
             var id = await _projectService.CreateProjectInDB(project); //get project id when it is already in db
 
@@ -77,14 +76,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> SendToApproveWithOpenAccess()
         {
             var project = await Request.ReadFromJsonAsync<Project>();
-            project.NowStatus = "Approving";
-
-            foreach (var rule in project.Rules)
-            {
-                rule.CanRead = true;
-                rule.CanWrite = true;
-            }
-            await _projectRepository.UpdateAsync(project, null);
+            await _projectService.SendToApproveWithOpenAccess(project);
 
             var content = CreateContentWithURI("HELP ME PLS", $"investors/investorList/investorCard/projectCard?id={project.Id}");
 
@@ -128,7 +120,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            project.ApproveStatus |= role switch
+            project.ApproveStatus |= role switch //REMOVE THE BINARY OPERATION OPERATION
             {
                 "Financier" => 0b001,
                 "Lawyer" => 0b010,
