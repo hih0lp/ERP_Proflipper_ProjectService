@@ -103,8 +103,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/projects/finalize-project/{projectId}")]
-        public async Task<IActionResult> ToFinalizeProject(string projectId, string message)
+        public async Task<IActionResult> ToFinalizeProject(string projectId)
         {
+            string? message = await Request.ReadFromJsonAsync<string>();
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
             var content = CreateContentWithoutURI(message);
@@ -132,7 +133,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 //HttpClient httpClient = new HttpClient();
 
-                var content = CreateContentWithoutURI("OlegAss");
+                var content = CreateContentWithoutURI($"Проект согласован!");
                 var result = _projectService.NotificateAsync("OlegAss", content);
 
                 return Ok();
