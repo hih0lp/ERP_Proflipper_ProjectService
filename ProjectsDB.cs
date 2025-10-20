@@ -7,7 +7,9 @@ namespace ERP_Proflipper_WorkspaceService
 {
     public class ProjectsDB : DbContext
     {
-        public ProjectsDB()
+        //public ProjectsDB() : base() { }
+
+        public ProjectsDB(DbContextOptions<ProjectsDB> options) : base(options)
         {
             Console.WriteLine("dfkbnfoib");
             Database.EnsureCreated();

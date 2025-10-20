@@ -16,10 +16,10 @@ namespace ERP_Proflipper_ProjectService.Services
     {
         private readonly ProjectsDB _context;
         private readonly HttpClient _httpClient = new();
-        private readonly ProjectRepository _repository;
+        private readonly IProjectRepository _repository;
         private readonly IConfiguration _config;
 
-        public ProjectService(ProjectsDB context, ProjectRepository repository, IConfiguration config)
+        public ProjectService(ProjectsDB context, IProjectRepository repository, IConfiguration config)
         {
             _context = context;
             _repository = repository;

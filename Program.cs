@@ -35,8 +35,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<IProjectRepository, ProjectRepository>();
-builder.Services.AddSingleton<ProjectService>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddTransient<ProjectService>();
 
 builder.Services.AddDbContext<ProjectsDB>(options =>
 {
