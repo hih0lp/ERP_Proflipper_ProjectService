@@ -14,9 +14,9 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string NowStatus { get; set; } = "Потенциальный"; //put in some status
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
-        public List<RolesRules> Rules { get; set; }
         public string? SubStatus { get; set; }
         public string? Responsible { get; set; }
         public int? ApproveStatus { get; set; } = 0;
+        public List<RolesRules> Rules { get; set; }
     }
 }
