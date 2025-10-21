@@ -80,7 +80,7 @@ namespace ERP_Proflipper_ProjectService.Services
             changableProject.IsFinished = modifiedProject.IsFinished;
             changableProject.IsArchived = modifiedProject.IsArchived;
 
-            await _repository.UpdateAsync(changableProject, null); //change to user role
+            await _repository.UpdateAsync(changableProject); //change to user role
             
         }
 
@@ -109,7 +109,7 @@ namespace ERP_Proflipper_ProjectService.Services
                 rule.CanRead = true;
                 rule.CanWrite = true;
             }
-            await _repository.UpdateAsync(project, null);
+            await _repository.UpdateAsync(project);
         }
     }
 }
