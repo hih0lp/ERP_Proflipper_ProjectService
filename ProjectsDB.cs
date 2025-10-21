@@ -27,9 +27,10 @@ namespace ERP_Proflipper_WorkspaceService
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Project>()
-                .HasMany<RolesRules>()
+                .HasMany<RolesRules>(t => t.Rules)
                 .WithOne(t => t.Project)
                 .HasForeignKey(t => t.ProjectId);
+                //.HasPrincipalKey(t => t.Id);
         }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

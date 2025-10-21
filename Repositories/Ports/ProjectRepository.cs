@@ -20,7 +20,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Project modifiedProject, string role) //mb need to add something like a check an accessibility of db, params string modifable project card
+        public async Task UpdateAsync(Project modifiedProject)
         {
 
             //var changableProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);

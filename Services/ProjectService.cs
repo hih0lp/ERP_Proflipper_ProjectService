@@ -49,7 +49,7 @@ namespace ERP_Proflipper_ProjectService.Services
         public async Task EditProjectAsync(Project modifiedProject, string role) //mb need to add something like a check an accessibility of db, params string modifable project card
         {
             
-            var changableProject = await  _repository.GetProjectByIdAsync(modifiedProject.Id);
+            var changableProject = await _repository.GetProjectByIdAsync(modifiedProject.Id);
             changableProject.FinancierCardJson = modifiedProject.FinancierCardJson;
             changableProject.PMCardJson = modifiedProject.PMCardJson;
             changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
