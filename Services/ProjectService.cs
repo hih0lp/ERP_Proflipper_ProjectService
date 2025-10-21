@@ -31,13 +31,15 @@ namespace ERP_Proflipper_ProjectService.Services
             project.Id = Guid.NewGuid().ToString();
             project.NowStatus = "Potential";
 
-            List<RolesRules> rolesRules = new List<RolesRules>()
+            project.Rules = new List<RolesRules>()
             {
                 new RolesRules { ProjectId = project.Id, RoleName = "ProjectManager", CanRead = true, CanWrite = true },
                 new RolesRules { ProjectId = project.Id, RoleName = "Lawyer", CanRead = false, CanWrite = false },
                 new RolesRules { ProjectId = project.Id, RoleName = "Financier", CanRead = false, CanWrite = false },
                 new RolesRules { ProjectId = project.Id, RoleName = "Builder", CanRead = false, CanWrite = false }
             };
+
+            
 
             await _repository.AddProjectInDB(project);
 
