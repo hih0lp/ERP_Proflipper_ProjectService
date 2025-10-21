@@ -5,7 +5,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Interface
     public interface IProjectRepository
     {
         public Task AddProjectInDB(Project project);
-        public Task UpdateAsync(Project modifiedProject, string role);
+        public Task UpdateAsync(Project modifiedProject);
         //public void ChangeProjectStatus(Project project, string nextStatus);
         public Task<bool> DeleteProjectAsync(string id);
         public Task<Project> GetProjectByIdAsync(string id);
