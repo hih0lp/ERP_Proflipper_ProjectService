@@ -108,7 +108,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/finalize-project/{projectId}")]
         public async Task<IActionResult> ToFinalizeProject(string projectId)
         {
-            string? message = JsonSerializer.Deserialize<string>(await new StreamReader(Request.Body).ReadToEndAsync());
+            string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
 
             _logger.LogInformation(message);
 
