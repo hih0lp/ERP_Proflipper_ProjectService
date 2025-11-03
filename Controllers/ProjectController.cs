@@ -114,7 +114,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            var content = CreateContentWithoutURI(message);
+            var content = CreateContentWithURI(message, $"investors/investorList/investorCard/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
 
             return result.IsSuccess ? Ok() : BadRequest(result.Errors);
