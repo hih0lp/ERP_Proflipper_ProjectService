@@ -18,6 +18,6 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string? Responsible { get; set; }
         public int? ApproveStatus { get; set; } = 0;
         public List<RolesRules> Rules { get; set; }
-        public string SellerCheckJson { get; set; }
+        public string? SellerCheckJson { get; set; }
     }
 }
