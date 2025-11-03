@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.Json;
 using ERP_Proflipper_ProjectService.Services;
 using ERP_Proflipper_ProjectService.Repositories.Interface;
+using MongoDB.Bson;
 
 
 
@@ -78,7 +79,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await Request.ReadFromJsonAsync<Project>();
             await _projectService.SendToApproveWithOpenAccess(project);
 
-            var content = CreateContentWithURI("HELP ME PLS", $"investors/investorList/investorCard/projectCard?id={project.Id}");
+            var comment = JsonSerializer.Deserialize<JsonElement>(project.PMCardJson).GetProperty("Comment").ToString();
+
+            var content = CreateContentWithURI(comment, $"investors/investorList/investorCard/projectCard?id={project.Id}");
 
             var result = await _projectService.NotificateAsync("OlegAss", content);
             
