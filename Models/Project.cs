@@ -11,7 +11,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string? FinancierCardJson { get; set; }
         public string? BuilderCardJson { get; set; }
         public string? LawyerCardJson { get; set; }
-        public string NowStatus { get; set; } = "Потенциальный"; //put in some status
+        public string NowStatus { get; set; } = "Potential"; //put in some status
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
         public string? SubStatus { get; set; }
