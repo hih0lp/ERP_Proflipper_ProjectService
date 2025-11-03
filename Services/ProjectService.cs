@@ -77,6 +77,7 @@ namespace ERP_Proflipper_ProjectService.Services
             //}
 
 
+            changableProject.SellerCheckJson = modifiedProject.SellerCheckJson;
             changableProject.NowStatus = modifiedProject.NowStatus;
             //changableProject.Rules = modifiedProject.Rules;
             changableProject.IsFinished = modifiedProject.IsFinished;
