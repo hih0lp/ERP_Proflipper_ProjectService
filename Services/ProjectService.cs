@@ -18,12 +18,13 @@ namespace ERP_Proflipper_ProjectService.Services
         private readonly HttpClient _httpClient = new();
         private readonly IProjectRepository _repository;
         private readonly IConfiguration _config;
-
-        public ProjectService(ProjectsDB context, IProjectRepository repository, IConfiguration config)
+        private readonly ILogger<ProjectService> _logger;
+        public ProjectService(ProjectsDB context, IProjectRepository repository, IConfiguration config, ILogger<ProjectService> logger)
         {
             _context = context;
             _repository = repository;
             _config = config;
+            _logger = logger;
         }
 
         public async Task<string> CreateProjectInDB(Project project)
@@ -55,8 +56,9 @@ namespace ERP_Proflipper_ProjectService.Services
             changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
             changableProject.LawyerCardJson = modifiedProject.LawyerCardJson;
 
-
-
+            _logger.LogInformation(modifiedProject.Id);
+            _logger.LogInformation(changableProject.Id);
+            _logger.LogInformation(modifiedProject.NowStatus);
             //UPDATE
             //switch (role)
             //{
