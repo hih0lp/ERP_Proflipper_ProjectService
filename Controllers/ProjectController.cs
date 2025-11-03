@@ -109,12 +109,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> ToFinalizeProject(string projectId)
         {
             string? message = await Request.ReadFromJsonAsync<string>();
+
+            _logger.LogInformation(message);
+
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
             var content = CreateContentWithoutURI(message);
             var result = await _projectService.NotificateAsync("OlegAss", content);
 
-            return result.IsSuccess ? Ok() : BadRequest(result.Errors); ;
+            return result.IsSuccess ? Ok() : BadRequest(result.Errors);
         }
 
 
