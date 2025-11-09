@@ -30,19 +30,6 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         }
 
-        //help
-        //public async void ChangeProjectStatus(Project project, string nextStatus)
-        //{
-        //    //only director can finish project
-
-        //    project.NowStatus = nextStatus;
-        //    _context.Projects.Update(project);
-        //    _context.SaveChanges();
-
-        //}
-
-
-
         public async Task<bool> DeleteProjectAsync(string id)
         {
             var project = await _context.Projects.Include(p => p.Rules).FirstOrDefaultAsync(p => p.Id == id);
@@ -65,14 +52,16 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         {
             return await _context.Projects
                 .Include(x => x.Rules)
+                .Include(x => x.RolesLogins)
                 .ToListAsync();
         }
 
-        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //gettind all projects by user role
+        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //getting all projects by user role
         {
             var projectsList = await _context.Projects
                 .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) && x.IsArchived == false && x.IsFinished == false)
                 .Include(x => x.Rules)
+                .Include(x => x.RolesLogins)
                 .ToListAsync();
 
             return projectsList;
@@ -81,6 +70,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         public async Task<string> GetProjectCardByRoleAndId(string projectId, string role) //getting card project by role and project id
         {
             var project = await GetProjectByIdAsync(projectId);
+            if (project is null) return null;
 
             return role switch
             {
@@ -91,9 +81,18 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
             };
         }
 
+        public async Task<List<Project>> GetProjectsByUserLogin(string login)
+        {
+            return await _context.Projects
+                .Include(x => x.Rules)
+                .Include(x => x.RolesLogins)
+                .Where(x => (x.RolesLogins.FinancierLogin == login || x.RolesLogins.BuilderLogin == login || x.RolesLogins.LawyerLogin == login || x.RolesLogins.ProjectManagerLogin == login))
+                .ToListAsync();
+        }
+
         public async Task<List<Project>> GetAllProjectsByStatus(string status)
         {
-            return _context.Projects.Where(x => x.NowStatus == status).Include(x => x.Rules).ToList();
+            return await _context.Projects.Where(x => x.NowStatus == status).Include(x => x.Rules).Include(x => x.RolesLogins).ToListAsync();
         }
     }
 }

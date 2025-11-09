@@ -112,6 +112,39 @@ namespace ERP_Proflipper_ProjectService.Services
                 rule.CanRead = true;
                 rule.CanWrite = true;
             }
+
+            project.Rules.First(x => x.RoleName == "ProjectManager").CanRead = false; //now all roles excluding project manager can read and write project
+            await _repository.UpdateAsync(project);
+        }
+
+        public async Task EditPropertiesAsync(string role, string status, string userLogin, Project project)
+        {
+            switch (role)
+            {
+                case "Financier":
+                    project.NowStatus = status;
+                    project.RolesLogins.FinancierLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "Lawyer":
+                    project.NowStatus = status;
+                    project.RolesLogins.LawyerLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "Builder":
+                    project.NowStatus = status;
+                    project.RolesLogins.BuilderLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "ProjectManager":
+                    project.RolesLogins.ProjectManagerLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                default:
+                    project.NowStatus = status;
+                    break;
+            }
+
             await _repository.UpdateAsync(project);
         }
     }

@@ -11,12 +11,13 @@ namespace ERP_Proflipper_WorkspaceService
 
         public ProjectsDB(DbContextOptions<ProjectsDB> options) : base(options)
         {
-            Console.WriteLine("dfkbnfoib");
+            //Console.WriteLine("dfkbnfoib");
             Database.EnsureCreated();
         }
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<RolesRules> RolesRules { get; set; }
+        public DbSet<RolesLogins> RolesLogins { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -28,11 +29,17 @@ namespace ERP_Proflipper_WorkspaceService
         {
             modelBuilder.Entity<Project>().HasKey(p => p.Id);
             modelBuilder.Entity<RolesRules>().HasKey(r => r.Id);
+            modelBuilder.Entity<RolesLogins>().HasKey(r => r.Id);
 
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.Rules)
                 .WithOne(r => r.Project)
                 .HasForeignKey(r => r.ProjectId);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(t => t.RolesLogins)
+                .WithOne(p => p.Project)
+                .HasForeignKey<RolesLogins>(k => k.ProjectId);
         }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

@@ -28,10 +28,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly ProjectService _projectService;
         private readonly IConfiguration _config;
-        //ProjectValidator projectValidator = new ProjectValidator(); //custom validator
         private ILogger<ProjectController> _logger;
-        private const int Mask = 0b111;
-        //private ProjectDAO _projectDAO = new();
 
         public ProjectController(ILogger<ProjectController> logger, IConfiguration config, IProjectRepository projectRepository, ProjectService projectService)
         {
@@ -55,6 +52,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var id = await _projectService.CreateProjectInDB(project); //get project id when it is already in db
 
+            _logger.LogInformation($"New project. ID: {id}");
+
             return Ok(Json(id)); //return id
         }
 
@@ -65,7 +64,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await Request.ReadFromJsonAsync<Project>();
 
 
-            _logger.LogInformation(project.Id);
+            _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
             await _projectService.EditProjectAsync(project, null);
 
@@ -77,12 +76,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> SendToApproveWithOpenAccess()
         {
             var project = await Request.ReadFromJsonAsync<Project>();
+            if (project is null) return BadRequest();
+
             await _projectService.SendToApproveWithOpenAccess(project);
 
+            _logger.LogInformation($"Project: {project.Id} sending to approve");
+
             var comment = JsonSerializer.Deserialize<JsonElement>(project.PMCardJson).GetProperty("Comment").ToString();
-
             var content = CreateContentWithURI(comment, $"investors/investorList/investorCard/projectCard?id={project.Id}");
-
             var result = await _projectService.NotificateAsync("OlegAss", content);
             
             return result.IsSuccess ? Ok() : BadRequest(result.Errors);
@@ -90,14 +91,18 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPut]
-        [Route("/projects/disapprove-project/{id}")]
-        public async Task<IActionResult> DisapproveProject(string id)
+        [Route("/projects/disapprove-project/{id}/{role}/{userLogin}")]
+        public async Task<IActionResult> DisapproveProject(string id, string role, string userLogin)
         {
+            if (id is null) return BadRequest();
             var project = await _projectRepository.GetProjectByIdAsync(id);
 
-            project.IsArchived = true;
-            project.NowStatus = "Archived";
+            _logger.LogInformation($"Project: {project.Id} sending to archive");
 
+            project.IsArchived = true;
+
+
+            await _projectService.EditPropertiesAsync(role, "Archived", userLogin, project);
             await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
 
             return Ok();
@@ -105,14 +110,17 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Route("/projects/finalize-project/{projectId}")]
-        public async Task<IActionResult> ToFinalizeProject(string projectId)
+        [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] //EDITED   
+        public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
+            if (message is null) return BadRequest();
 
-            _logger.LogInformation(message);
+            _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
+
+            await _projectService.EditPropertiesAsync(role, "Finalieze", userLogin, project); //ask egorik blin
 
             var content = CreateContentWithURI(message, $"investors/investorList/investorCard/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
@@ -122,32 +130,21 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Route("/projects/to-all-approve/{projectId}/{role}")]
-        public async Task<IActionResult> ToApproveProject(string projectId, string role)
+        [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] //EDITED
+        public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
+            if (projectId is null || role is null) return BadRequest();
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            project.ApproveStatus |= role switch //REMOVE THE BINARY OPERATION OPERATION
-            {
-                "Financier" => 0b001,
-                "Lawyer" => 0b010,
-                "Builder" => 0b100,
-                _ => 0b1111
-            };
+            await _projectService.EditPropertiesAsync(role, "Approve", userLogin, project);
 
-            if (project.ApproveStatus == Mask)
+            if (project.LawyerStatus.Equals("Approved") && project.BuilderStatus.Equals("Approved") && project.FinancierStatus.Equals("Approved"))
             {
-                //HttpClient httpClient = new HttpClient();
-
+                _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
                 var content = CreateContentWithoutURI($"Проект согласован!");
                 var result = _projectService.NotificateAsync("OlegAss", content);
 
                 return Ok();
-            }
-
-            if (project.ApproveStatus == 0b1111)
-            {
-                project.NowStatus = "In progress";
             }
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
@@ -186,106 +183,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             return Json(await _projectRepository.GetProjectByIdAsync(id));
         }
-
-
-
-        //[HttpPost]
-        //[Route("/projects")]
-        //[Authorize(Roles = "ProjectManager")]
-        ////[Authorize(Policy = "OnlyForPM")]
-        //public async Task<StatusCodeResult> AddProjectInDB() //READY
-        //{
-        //    try
-        //    {
-        //        var pmCard = await Request.ReadFromJsonAsync<string>(); //read project from form
-        //                                                                //Project newProject = new();
-
-
-        //        //await projectValidator.ValidateAndThrowAsync(project); //validate project data
-
-        //        ProjectDAO.AddProjectInDB(pmCard);
-
-        //        return Ok();
-        //    }
-        //    catch (ValidationException exception)
-        //    {
-        //        foreach (var error in exception.Errors)
-        //        {
-        //            _logger.LogError(error.ErrorMessage);
-        //        }
-
-        //        return BadRequest();
-        //    }
-        //}
-
-        //[HttpGet]
-        //[Route("/projects/{role}/{id}")]
-        //[Authorize(Roles = "ProjectManager")]
-        ////[Authorize(Roles = "Builder")]
-        ////[Authorize(Roles = "Financier")]
-        ////[Authorize(Roles = "Lawyer")]
-        ////[Authorize(Policy = "OnlyForPM")]
-        //public async Task<IActionResult> GetProjectCard(string role, int id) //NEED TEST //params string accessibleStatus
-        //{
-        //    var project = await ProjectDAO.GetCardByRoleAndIdAsync(id, role);
-        //    return Json(project);
-
-        //    //return result.IsSuccess ? Json(result.Value) : BadRequest();
-        //}
-
-        //[HttpGet]
-        //[Authorize(Roles = "ProjectManager")]
-        //[Route("/projects/{id}")]
-        //public async Task<IActionResult> GetProject(int id)
-        //{
-        //    var project = await ProjectDAO.GetProjectAsync(id);
-
-        //    return project == null ? BadRequest() : Json(project);
-        //}
-
-        //[HttpPut]
-        //[Route("/projects/{role}")]
-        //public async Task<StatusCodeResult> EditProject(string role) //NEED TEST
-        //{
-        //    try
-        //    {
-        //        var modifiedProject = await Request.ReadFromJsonAsync<Project>(); //get from form
-        //        await projectValidator.ValidateAndThrowAsync(modifiedProject);
-
-        //        await ProjectDAO.EditProjectAsync(modifiedProject, role);
-
-        //        return Ok();
-
-        //    }
-        //    catch (ValidationException exception)
-        //    {
-        //        foreach (var error in exception.Errors)
-        //        {
-        //            _logger.LogError(error.ErrorMessage);
-        //        }
-
-        //        return BadRequest();
-        //    }
-        //}
-
-        //[HttpPut]
-        //[Route("change-status")]
-        //public async Task<StatusCodeResult> ChangeProjectStatus(string nextStatus)
-        //{
-        //    var project = await Request.ReadFromJsonAsync<Project>();
-        //    ProjectDAO.ChangeProjectStatus(project, nextStatus);
-
-        //    return Ok();
-        //}
-
-
-
-        //[HttpDelete]
-        //[Route("/projects/{id}")]
-        //public async Task<StatusCodeResult> DeleteProject(int id)
-        //{
-        //    return await ProjectDAO.DeleteProjectAsync(id) ? Ok() : BadRequest();
-        //}
 
         private HttpContent CreateContentWithURI(string message, string redirectURI)
         {
