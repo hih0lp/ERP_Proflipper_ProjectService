@@ -134,9 +134,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
             if (projectId is null || role is null) return BadRequest();
+
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            _logger.LogInformation($"Project:{project.Id}");
+
 
             await _projectService.EditPropertiesAsync(role, "Approve", userLogin, project);
+            _logger.LogInformation("Properties updated");
 
             if (project.LawyerStatus.Equals("Approved") && project.BuilderStatus.Equals("Approved") && project.FinancierStatus.Equals("Approved"))
             {
@@ -148,6 +152,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             }
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
+            _logger.LogInformation("Ok");
 
             return Ok();    
 
