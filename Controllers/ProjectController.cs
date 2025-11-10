@@ -139,10 +139,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project:{project.Id}");
 
 
-            await _projectService.EditPropertiesAsync(role, "Approve", userLogin, project);
+            await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
             _logger.LogInformation("Properties updated");
 
-            if (project.LawyerStatus.Equals("Approved") && project.BuilderStatus.Equals("Approved") && project.FinancierStatus.Equals("Approved"))
+            if (project.LawyerStatus == "Approved" && project.BuilderStatus == "Approved" && project.FinancierStatus == "Approved")
             {
                 _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
                 var content = CreateContentWithoutURI($"Проект согласован!");
