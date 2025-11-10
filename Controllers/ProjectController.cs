@@ -179,9 +179,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         [Route("/projects/get-by-id/{id}")]
-        public async Task<JsonResult> GetProjectsById(string id)
+        public async Task<IActionResult> GetProjectById(string id)
         {
-            return Json(await _projectRepository.GetProjectByIdAsync(id));
+            var project = await _projectRepository.GetProjectByIdAsync(id);
+            if (project == null) return BadRequest();
+
+            return Json(project);
         }
 
         private HttpContent CreateContentWithURI(string message, string redirectURI)

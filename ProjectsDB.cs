@@ -41,37 +41,5 @@ namespace ERP_Proflipper_WorkspaceService
                 .WithOne(p => p.Project)
                 .HasForeignKey<RolesLogins>(k => k.ProjectId);
         }
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Project>()
-        //        .HasOne(p => p.PMCardModel)
-        //        .WithOne(p => p.Project)
-        //        .HasForeignKey<PMCardModel>(t => t.ProjectId)
-        //        .HasPrincipalKey<Project>(e => e.Id)
-        //        .OnDelete(DeleteBehavior.Restrict);
-
-        //    modelBuilder.Entity<Project>()
-        //        .HasOne(p => p.FinancierCardModel)
-        //        .WithOne(p => p.Project)
-        //        .HasForeignKey<FinancierCardModel>(t => t.ProjectId)
-        //        .HasPrincipalKey<Project>(e => e.Id)
-        //        .OnDelete(DeleteBehavior.Restrict);
-
-
-        //    modelBuilder.Entity<Project>()
-        //        .HasOne(p => p.BuilderCardModel)
-        //        .WithOne(p => p.Project)
-        //        .HasForeignKey<BuilderCardModel>(t => t.ProjectId)
-        //        .HasPrincipalKey<Project>(e => e.Id)
-        //        .OnDelete(DeleteBehavior.Restrict);
-
-
-        //    modelBuilder.Entity<Project>()
-        //        .HasOne(p => p.LawyerCardModel)
-        //        .WithOne(p => p.Project)
-        //        .HasForeignKey<LawyerCardModel>(t => t.ProjectId)
-        //        .HasPrincipalKey<Project>(e => e.Id)
-        //        .OnDelete(DeleteBehavior.Restrict);
-        //}
     }
 }

@@ -43,9 +43,18 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         public async Task<Project> GetProjectByIdAsync(string id)
         {
-            return await _context.Projects
+            try
+            {
+                return await _context.Projects
                 .Include(x => x.Rules)
+                .Include(x => x.RolesLogins)
                 .FirstOrDefaultAsync(p => p.Id == id);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            
         }
 
         public async Task<List<Project>> GetAllProjectsAsync()
