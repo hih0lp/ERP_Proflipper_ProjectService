@@ -101,7 +101,9 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         public async Task<List<Project>> GetAllProjectsByStatus(string status)
         {
-            return await _context.Projects.Where(x => x.NowStatus == status).Include(x => x.Rules).Include(x => x.RolesLogins).ToListAsync();
+            var projects = await _context.Projects.Where(x => x.NowStatus == status).Include(x => x.Rules).Include(x => x.RolesLogins).ToListAsync();
+
+            return projects;
         }
     }
 }

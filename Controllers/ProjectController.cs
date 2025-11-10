@@ -162,17 +162,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         [Route("/projects/status={status}")]
-        public async Task<JsonResult> GetProjectsByStatus(string status)
+        public async Task<IActionResult> GetProjectsByStatus(string status)
         {
             var jsonList = await _projectRepository.GetAllProjectsByStatus(status);
+            if (jsonList == null) return BadRequest();
 
-            foreach (var item in jsonList)
-            {
-                foreach (var i in item.Rules)
-                {
-                    Console.WriteLine(i.Id);
-                }
-            }
 
             return Json(jsonList);
         }
