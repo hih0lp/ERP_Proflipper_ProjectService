@@ -164,21 +164,34 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/status={status}")]
         public async Task<IActionResult> GetProjectsByStatus(string status)
         {
-            var jsonList = await _projectRepository.GetAllProjectsByStatus(status);
-            if (jsonList == null) return BadRequest();
+            try
+            {
+                var jsonList = await _projectRepository.GetAllProjectsByStatus(status);
+                return Json(jsonList);
 
-
-            return Json(jsonList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest();
+            }
         }
 
         [HttpGet]
         [Route("/projects/get-by-id/{id}")]
         public async Task<IActionResult> GetProjectById(string id)
         {
-            var project = await _projectRepository.GetProjectByIdAsync(id);
-            if (project == null) return BadRequest();
+            try
+            {
+                var project = await _projectRepository.GetProjectByIdAsync(id);
 
-            return Json(project);
+                return Json(project);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest();
+            }
         }
 
         private HttpContent CreateContentWithURI(string message, string redirectURI)
