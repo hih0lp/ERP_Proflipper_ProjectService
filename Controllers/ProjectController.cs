@@ -77,7 +77,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpPost]
-        [Authorize("OnlyFormPM")]
+        [Authorize("OnlyForPM")]
         [Route("/project/to-pm-approve")]
         public async Task<IActionResult> SendToApproveWithOpenAccess()
         {
