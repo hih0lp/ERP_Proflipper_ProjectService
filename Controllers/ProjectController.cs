@@ -173,7 +173,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(null);
+                return Ok(204);
             }
         }
 
