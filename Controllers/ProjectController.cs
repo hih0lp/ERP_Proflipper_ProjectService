@@ -45,7 +45,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Authorize("OnlyFormPM")] //TODO general director also can make it
+        [Authorize("OnlyForPM")] //TODO general director also can make it
         [Route("/project/create")]
         public async Task<IActionResult> CreateProject()
         {
@@ -88,7 +88,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             _logger.LogInformation($"Project: {project.Id} sending to approve");
 
-            var comment = JsonSerializer.Deserialize<JsonElement>(project.PMCardJson).GetProperty("Comment").ToString();
+            var comment = JsonSerializer.Deserialize<JsonElement>(project.PMCardJson).GetProperty("Comment").ToString(); //required field
             var content = CreateContentWithURI(comment, $"ProjectsAndDeals/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
             
