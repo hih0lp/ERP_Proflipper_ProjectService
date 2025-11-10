@@ -40,7 +40,7 @@ namespace ERP_Proflipper_ProjectService.Services
                 new RolesRules { ProjectId = project.Id, RoleName = "Builder", CanRead = false, CanWrite = false }
             };
 
-            
+            project.RolesLogins = new();
 
             await _repository.AddProjectInDB(project);
 
