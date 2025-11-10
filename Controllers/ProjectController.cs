@@ -45,6 +45,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
+        [Authorize("OnlyFormPM")] //TODO general director also can make it
         [Route("/project/create")]
         public async Task<IActionResult> CreateProject()
         {
@@ -58,6 +59,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpPut]
+        [Authorize("OnlyForPM")]
+        [Authorize("OnlyForBuilder")]
+        [Authorize("OnlyForLawyer")]
+        [Authorize("OnlyForFinancier")]
         [Route("/project/edit")]
         public async Task<StatusCodeResult> EditProjectAsync()
         {
@@ -72,6 +77,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpPost]
+        [Authorize("OnlyFormPM")]
         [Route("/project/to-pm-approve")]
         public async Task<IActionResult> SendToApproveWithOpenAccess()
         {
@@ -83,7 +89,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project: {project.Id} sending to approve");
 
             var comment = JsonSerializer.Deserialize<JsonElement>(project.PMCardJson).GetProperty("Comment").ToString();
-            var content = CreateContentWithURI(comment, $"investors/investorList/investorCard/projectCard?id={project.Id}");
+            var content = CreateContentWithURI(comment, $"ProjectsAndDeals/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
             
             return result.IsSuccess ? Ok() : BadRequest(result.Errors);
@@ -91,6 +97,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPut]
+        [Authorize("OnlyForBuilder")]
+        [Authorize("OnlyForLawyer")]
+        [Authorize("OnlyForFinancier")]
         [Route("/projects/disapprove-project/{id}/{role}/{userLogin}")]
         public async Task<IActionResult> DisapproveProject(string id, string role, string userLogin)
         {
@@ -110,7 +119,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] //EDITED   
+        [Authorize("OnlyForBuilder")]
+        [Authorize("OnlyForLawyer")]
+        [Authorize("OnlyForFinancier")]
+        [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
@@ -118,11 +130,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
-            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
 
-            await _projectService.EditPropertiesAsync(role, "Finalieze", userLogin, project); //ask egorik blin
+            await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project); //ask egorik blin
 
-            var content = CreateContentWithURI(message, $"investors/investorList/investorCard/projectCard?id={project.Id}");
+            var content = CreateContentWithURI(message, $"ProjectsAndDeals/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
 
             return result.IsSuccess ? Ok() : BadRequest(result.Errors);
@@ -130,6 +142,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
+        [Authorize("OnlyForBuilder")]
+        [Authorize("OnlyForLawyer")]
+        [Authorize("OnlyForFinancier")]
         [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] //EDITED
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
@@ -152,7 +167,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             }
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
-            _logger.LogInformation("Ok");
 
             return Ok();    
 

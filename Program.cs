@@ -62,26 +62,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-builder.Services.AddSingleton(provider =>
-{
-    var credPath = "credentials.json";
-    if (!File.Exists(credPath)) throw new FileNotFoundException(credPath);
-
-    using var stream = new FileStream(credPath, FileMode.Open, FileAccess.Read);
-    var credential = GoogleCredential.FromStream(stream).CreateScoped(SheetsService.Scope.Spreadsheets);
-
-    return new SheetsService(new BaseClientService.Initializer()
-    {
-        HttpClientInitializer = credential,
-        ApplicationName = "ERP_PROFLIPPER"
-    });
-});
-
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("OnlyForPM", policy =>
-        policy.RequireRole("ProjectManager"));
+    options.AddPolicy("OnlyForPM", policy => policy.RequireRole("ProjectManager"));
+    options.AddPolicy("OnlyForBuilder", policy => policy.RequireRole("Builder"));
+    options.AddPolicy("OnlyForFinancier", policy => policy.RequireRole("Financier"));
+    options.AddPolicy("OnlyForLawyer", policy => policy.RequireRole("Lawyer"));
 });
 
 
@@ -100,6 +87,12 @@ builder.Services.AddOpenTelemetry()
     });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ProjectsDB>();
+    dbContext.Database.Migrate();
+}
 
 if (!app.Environment.IsDevelopment())
 {
