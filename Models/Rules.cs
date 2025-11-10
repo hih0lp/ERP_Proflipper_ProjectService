@@ -12,7 +12,7 @@ namespace ERP_Proflipper_ProjectService.Models
 
     public class RolesRules : Rules
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
         public string? ProjectId { get; set; }
         public string RoleName { get; set; }
 
