@@ -60,9 +60,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPut]
         [Authorize("OnlyForPM")]
-        [Authorize("OnlyForBuilder")]
-        [Authorize("OnlyForLawyer")]
-        [Authorize("OnlyForFinancier")]
         [Route("/project/edit")]
         public async Task<StatusCodeResult> EditProjectAsync()
         {
@@ -97,9 +94,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPut]
-        [Authorize("OnlyForBuilder")]
-        [Authorize("OnlyForLawyer")]
-        [Authorize("OnlyForFinancier")]
+        [Authorize("OnlyForPM")]
         [Route("/projects/disapprove-project/{id}/{role}/{userLogin}")]
         public async Task<IActionResult> DisapproveProject(string id, string role, string userLogin)
         {
@@ -119,9 +114,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Authorize("OnlyForBuilder")]
-        [Authorize("OnlyForLawyer")]
-        [Authorize("OnlyForFinancier")]
+        [Authorize("OnlyForPM")]
         [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
@@ -142,9 +135,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Authorize("OnlyForBuilder")]
-        [Authorize("OnlyForLawyer")]
-        [Authorize("OnlyForFinancier")]
+        [Authorize("OnlyForPM")]
         [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] //EDITED
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
@@ -173,6 +164,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
+        [Authorize("OnlyForPM")]
         [Route("/projects/role={role}")]
         public async Task<IActionResult> GetProjectsByRole(string role)
         {
@@ -180,6 +172,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
+        [Authorize("OnlyForPM")]
         [Route("/projects/status={status}")]
         public async Task<IActionResult> GetProjectsByStatus(string status)
         {
@@ -197,6 +190,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         }
 
         [HttpGet]
+        [Authorize("OnlyForPM")]
         [Route("/projects/get-by-id/{id}")]
         public async Task<IActionResult> GetProjectById(string id)
         {
