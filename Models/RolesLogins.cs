@@ -5,7 +5,7 @@ namespace ERP_Proflipper_ProjectService.Models
 {
     public class RolesLogins
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
         public string? ProjectId { get; set; }
         public string? BuilderLogin { get; set; }
         public string? LawyerLogin { get; set; }
