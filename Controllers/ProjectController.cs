@@ -81,7 +81,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             var project = await Request.ReadFromJsonAsync<Project>();
             if (project is null) return BadRequest();
-            if (project.Rules.Any(x => x.RoleName == "ProjectManager" && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
+            //if (project.Rules.Any(x => x.RoleName == "ProjectManager" && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
 
 
             await _projectService.SendToApproveWithOpenAccess(project);
@@ -120,6 +120,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
+            if (projectId is null || role is null || userLogin is null) return BadRequest();
+
             var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
             if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
 
@@ -143,7 +145,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
-            if (projectId is null || role is null) return BadRequest();
+            if (projectId is null || role is null || userLogin is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
