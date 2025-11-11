@@ -46,7 +46,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        //[Authorize("OnlyForPM")] //TODO general director also can make it
+        [Authorize("OnlyForPM")] //TODO general director also can make it
         [Route("/project/create")]
         public async Task<IActionResult> CreateProject()
         {
