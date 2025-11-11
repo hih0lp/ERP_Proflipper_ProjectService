@@ -45,6 +45,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         {
             return await _context.Projects
             .Include(x => x.Rules)
+            .Include(x => x.Responsibles)
             .Include(x => x.RolesLogins)
             .FirstOrDefaultAsync(p => p.Id == id);
             
@@ -58,12 +59,14 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
                 .ToListAsync();
         }
 
-        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //getting all projects by user role
+        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role, string responsibleName) //getting all projects by user role
         {
             var projectsList = await _context.Projects
                 .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) 
                     && x.IsArchived == false 
-                    && x.IsFinished == false && x.Responsible == null) //role can view project if this project does not pick up other role
+                    && x.IsFinished == false) 
+                .Include(x => x.Responsibles)
+                .Where(x => x.Responsibles.Any(x => x.ResponsibleRole == role && x.ResponsibleName == responsibleName))
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
                 .ToListAsync();
@@ -89,6 +92,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         {
             return await _context.Projects
                 .Include(x => x.Rules)
+                .Include(x => x.Responsibles)
                 .Include(x => x.RolesLogins)
                 .Where(x => (x.RolesLogins.FinancierLogin == login || x.RolesLogins.BuilderLogin == login || x.RolesLogins.LawyerLogin == login || x.RolesLogins.ProjectManagerLogin == login))
                 .ToListAsync();
@@ -96,7 +100,12 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         public async Task<List<Project>> GetAllProjectsByStatus(string status)
         {
-            var projects = await _context.Projects.Where(x => x.NowStatus == status).Include(x => x.Rules).Include(x => x.RolesLogins).ToListAsync();
+            var projects = await _context.Projects
+                .Where(x => x.NowStatus == status)
+                .Include(x => x.Rules)
+                .Include(x => x.RolesLogins)
+                .Include(x => x.Responsibles)
+                .ToListAsync();
 
             return projects;
         }

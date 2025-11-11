@@ -11,13 +11,13 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public string? FinancierCardJson { get; set; }
         public string? BuilderCardJson { get; set; }
         public string? LawyerCardJson { get; set; }
-        public string NowStatus { get; set; } = "Potential"; //put in some status
+        public string NowStatus { get; set; } = "Potential"; 
         public bool IsFinished { get; set; } = false;
         public bool IsArchived { get; set; } = false;
         public string? SubStatus { get; set; }
-        public string? Responsible { get; set; }
         public int? ApproveStatus { get; set; } = 0;
-        public List<RolesRules> Rules { get; set; }
+        public List<ProjectResponsibles>? Responsibles { get; set; }
+        public List<RolesRules>? Rules { get; set; }
         public RolesLogins? RolesLogins { get; set; } 
         public string? SellerCheckJson { get; set; }
         public string? FinancierStatus { get; set; }
