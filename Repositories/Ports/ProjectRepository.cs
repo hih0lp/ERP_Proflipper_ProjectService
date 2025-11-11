@@ -66,7 +66,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
                     && x.IsArchived == false 
                     && x.IsFinished == false) 
                 .Include(x => x.Responsibles)
-                .Where(x => x.Responsibles.Any(x => x.ResponsibleRole == role && x.ResponsibleName == responsibleName))
+                .Where(x => x.Responsibles.Any(x => x.ResponsibleRole == role && x.ResponsibleName != responsibleName))
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
                 .ToListAsync();

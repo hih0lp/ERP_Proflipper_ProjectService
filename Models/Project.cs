@@ -16,7 +16,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public bool IsArchived { get; set; } = false;
         public string? SubStatus { get; set; }
         public int? ApproveStatus { get; set; } = 0;
-        public List<ProjectResponsibles>? Responsibles { get; set; }
+        public List<ProjectResponsibles>? Responsibles { get; set; } = new();
         public List<RolesRules>? Rules { get; set; }
         public RolesLogins? RolesLogins { get; set; } 
         public string? SellerCheckJson { get; set; }
