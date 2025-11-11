@@ -1,7 +1,9 @@
 //using System.ComponentModel.DataAnnotations;
 using ERP_Proflipper_ProjectService;
 using ERP_Proflipper_ProjectService.Models;
+using ERP_Proflipper_ProjectService.Repositories.Interface;
 using ERP_Proflipper_ProjectService.Repositories.Ports;
+using ERP_Proflipper_ProjectService.Services;
 using ERP_Proflipper_WorkspaceService.Models;
 using FluentResults;
 using FluentValidation;
@@ -9,14 +11,13 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using System.Data;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using ERP_Proflipper_ProjectService.Services;
-using ERP_Proflipper_ProjectService.Repositories.Interface;
-using MongoDB.Bson;
 
 
 
@@ -80,6 +81,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             var project = await Request.ReadFromJsonAsync<Project>();
             if (project is null) return BadRequest();
+            if (project.Rules.Any(x => x.RoleName == "ProjectManager" && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
+
 
             await _projectService.SendToApproveWithOpenAccess(project);
 
@@ -104,9 +107,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project: {project.Id} sending to archive");
 
             project.IsArchived = true;
-            //project.Rules.All(x => x.CanWrite = false);
+            
 
-            //await _projectService.EditPropertiesAsync(role, "Archived", userLogin, project);
             await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
 
             return Ok();
@@ -119,7 +121,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
-            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401);
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
 
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
@@ -138,13 +140,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Authorize("OnlyForPM")]
-        [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] //EDITED
+        [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
             if (projectId is null || role is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
-            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401);
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
 
             _logger.LogInformation($"Project:{project.Id}");
 

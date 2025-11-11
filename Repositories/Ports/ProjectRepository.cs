@@ -61,7 +61,9 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         public async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //getting all projects by user role
         {
             var projectsList = await _context.Projects
-                .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) && x.IsArchived == false && x.IsFinished == false)
+                .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) 
+                    && x.IsArchived == false 
+                    && x.IsFinished == false && x.Responsible == null) //role can view project if this project does not pick up other role
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
                 .ToListAsync();
