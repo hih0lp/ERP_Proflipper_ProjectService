@@ -118,12 +118,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/finalize-project/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return BadRequest();
+
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
 
             _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
-            var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
 
             await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project); //ask egorik blin
 
@@ -142,6 +144,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             if (projectId is null || role is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return BadRequest();
+
             _logger.LogInformation($"Project:{project.Id}");
 
 
