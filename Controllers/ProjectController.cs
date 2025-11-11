@@ -46,7 +46,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Authorize("OnlyForPM")] //TODO general director also can make it
+        //[Authorize("OnlyForPM")] //TODO general director also can make it
         [Route("/project/create")]
         public async Task<IActionResult> CreateProject()
         {
@@ -157,7 +157,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            if (! (await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
+            if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
 
             _logger.LogInformation($"Project:{project.Id}");
 
