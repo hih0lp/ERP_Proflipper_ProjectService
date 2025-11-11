@@ -113,8 +113,8 @@ namespace ERP_Proflipper_ProjectService.Services
                 rule.CanWrite = true;
             }
 
-            project.Rules.First(x => x.RoleName == "ProjectManager").CanRead = false; //now all roles excluding others project manager can read and write project
-            project.Rules.First(x => x.RoleName == "ProjectManager").CanWrite = false; //now all roles excluding others project manager can read and write project
+            //project.Rules.First(x => x.RoleName == "ProjectManager").CanRead = false; //now all roles excluding others project manager can read and write project
+            //project.Rules.First(x => x.RoleName == "ProjectManager").CanWrite = false; //now all roles excluding others project manager can read and write project
             await _repository.UpdateAsync(project);
         }
 

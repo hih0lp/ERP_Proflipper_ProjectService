@@ -148,6 +148,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             if (projectId is null || role is null || userLogin is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            //_logger.LogInformation($"{}");
+
             if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401); //check for rules
 
             _logger.LogInformation($"Project:{project.Id}");
