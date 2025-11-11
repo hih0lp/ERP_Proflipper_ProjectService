@@ -82,6 +82,11 @@ namespace ERP_Proflipper_ProjectService.Services
             //changableProject.Rules = modifiedProject.Rules;
             changableProject.IsFinished = modifiedProject.IsFinished;
             changableProject.IsArchived = modifiedProject.IsArchived;
+            changableProject.ApproveStatus = modifiedProject.ApproveStatus;
+            changableProject.SubStatus  = modifiedProject.SubStatus;
+            changableProject.BuilderStatus  = modifiedProject.BuilderStatus;
+            changableProject.LawyerStatus = modifiedProject.LawyerStatus;
+            changableProject.FinancierStatus = modifiedProject.FinancierStatus;
 
             await _repository.UpdateAsync(changableProject); //change to user role
             
