@@ -119,7 +119,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
-            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return BadRequest();
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401);
 
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
@@ -144,7 +144,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             if (projectId is null || role is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
-            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return BadRequest();
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return StatusCode(401);
 
             _logger.LogInformation($"Project:{project.Id}");
 
