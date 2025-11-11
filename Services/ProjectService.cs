@@ -148,5 +148,22 @@ namespace ERP_Proflipper_ProjectService.Services
 
             await _repository.UpdateAsync(project);
         }
+
+        public async Task<bool> CheckAccessAndRules(string projectId, string role, string userLogin)
+        {
+            var project = await _repository.GetProjectByIdAsync(projectId);
+
+            if (project.Responsibles.Any(x => x.ResponsibleRole == role) == default) project.Responsibles.Add(new ProjectResponsibles()
+            {
+                ProjectId = projectId,
+                ResponsibleName = userLogin,
+                ResponsibleRole = role,
+            });
+            else return false;
+
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead))) return false; //check for rules
+
+            return true;
+        }
     }
 }

@@ -59,14 +59,14 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
                 .ToListAsync();
         }
 
-        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role, string responsibleName) //getting all projects by user role
+        public async Task<List<Project>> GetAllProjectsByRoleAsync(string role) //getting all projects by user role
         {
             var projectsList = await _context.Projects
                 .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) 
                     && x.IsArchived == false 
                     && x.IsFinished == false) 
                 .Include(x => x.Responsibles)
-                .Where(x => x.Responsibles.Any(x => x.ResponsibleRole == role && x.ResponsibleName != responsibleName))
+                .Where(x => x.Responsibles.Any(x => string.IsNullOrEmpty(x.ResponsibleName) && x.ResponsibleRole == role))
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
                 .ToListAsync();
