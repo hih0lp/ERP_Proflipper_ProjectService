@@ -94,7 +94,10 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
                 .Include(x => x.Rules)
                 .Include(x => x.Responsibles)
                 .Include(x => x.RolesLogins)
-                .Where(x => (x.RolesLogins.FinancierLogin == login || x.RolesLogins.BuilderLogin == login || x.RolesLogins.LawyerLogin == login || x.RolesLogins.ProjectManagerLogin == login))
+                .Where(x => (x.RolesLogins.FinancierLogin == login 
+                    || x.RolesLogins.BuilderLogin == login 
+                    || x.RolesLogins.LawyerLogin == login 
+                    || x.RolesLogins.ProjectManagerLogin == login))
                 .ToListAsync();
         }
 
