@@ -2,6 +2,7 @@
 using ERP_Proflipper_WorkspaceService;
 using ERP_Proflipper_WorkspaceService.Models;
 using Microsoft.EntityFrameworkCore;
+using ZstdSharp.Unsafe;
 
 namespace ERP_Proflipper_ProjectService.Repositories.Ports
 {
@@ -25,7 +26,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
             //var changableProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
 
-            _context.Projects.Update(modifiedProject);            
+            _context.Update(modifiedProject);
             await _context.SaveChangesAsync();
 
         }
