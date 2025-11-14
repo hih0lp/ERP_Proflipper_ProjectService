@@ -167,6 +167,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             if (project.LawyerStatus == "Approved" && project.BuilderStatus == "Approved" && project.FinancierStatus == "Approved")
             {
+                project.NowStatus = "Approved";
                 _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
                 var content = CreateContentWithoutURI($"Проект согласован!");
                 var result = _projectService.NotificateAsync("OlegAss", content);
