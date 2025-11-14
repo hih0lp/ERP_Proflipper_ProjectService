@@ -158,7 +158,7 @@ namespace ERP_Proflipper_ProjectService.Services
         {
             var project = await _repository.GetProjectByIdAsync(projectId);
 
-            if (project.Responsibles.Any(x => x.ResponsibleRole == role) == default) project.Responsibles.Add(new ProjectResponsibles()
+            if (project.Responsibles.Any(x => x.ResponsibleRole == role) == null) project.Responsibles.Add(new ProjectResponsibles()
             {
                 ProjectId = projectId,
                 ResponsibleName = userLogin,
