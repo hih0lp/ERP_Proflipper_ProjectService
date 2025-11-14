@@ -163,10 +163,11 @@ namespace ERP_Proflipper_ProjectService.Services
                 ProjectId = projectId,
                 ResponsibleName = userLogin,
                 ResponsibleRole = role,
+                Project = project
             });
             //else return false;
 
-            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead) && project.Responsibles.Any(x => x.ResponsibleName == userLogin))) return false; //check for rules
+            if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead) || project.Responsibles.Any(x => x.ResponsibleName != userLogin))) return false; //check for rules
 
             return true;
         }
