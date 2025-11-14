@@ -146,9 +146,6 @@ namespace ERP_Proflipper_ProjectService.Services
                     project.RolesLogins.ProjectManagerLogin = userLogin;
                     project.Rules.First(x => x.RoleName == role).CanRead = false;
                     break;
-                default:
-                    project.NowStatus = status;
-                    break;
             }
 
             await _repository.UpdateAsync(project);
