@@ -26,7 +26,9 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
             //var changableProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
 
-            _context.Update(modifiedProject);
+            //_context.Update(modifiedProject);
+            _context.Projects.Update(modifiedProject);
+
             await _context.SaveChangesAsync();
 
         }
