@@ -128,17 +128,17 @@ namespace ERP_Proflipper_ProjectService.Services
             switch (role)
             {
                 case "Financier":
-                    project.NowStatus = status;
+                    project.FinancierStatus = status;
                     project.RolesLogins.FinancierLogin = userLogin;
                     project.Rules.First(x => x.RoleName == role).CanRead = false;
                     break;
                 case "Lawyer":
-                    project.NowStatus = status;
+                    project.LawyerStatus = status;
                     project.RolesLogins.LawyerLogin = userLogin;
                     project.Rules.First(x => x.RoleName == role).CanRead = false;
                     break;
                 case "Builder":
-                    project.NowStatus = status;
+                    project.BuilderStatus = status;
                     project.RolesLogins.BuilderLogin = userLogin;
                     project.Rules.First(x => x.RoleName == role).CanRead = false;
                     break;
