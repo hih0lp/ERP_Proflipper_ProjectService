@@ -162,9 +162,13 @@ namespace ERP_Proflipper_ProjectService.Services
                 ResponsibleRole = role,
                 Project = project
             });
+
+            Console.WriteLine(1234567890);
             //else return false;
 
             if (project.Rules.Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead) || project.Responsibles.Any(x => x.ResponsibleName != userLogin))) return false; //check for rules
+
+            Console.WriteLine(1234567890);
 
             return true;
         }

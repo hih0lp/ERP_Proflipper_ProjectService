@@ -103,13 +103,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             if (projectId is null) return BadRequest();
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
-            if (project.Responsibles.Any(x => x.ResponsibleRole == role) == default) project.Responsibles.Add(new ProjectResponsibles()
-            {
-                ProjectId = projectId,
-                ResponsibleName = userLogin,
-                ResponsibleRole = role,
-            });
-            else return StatusCode(401);
+            //if (project.Responsibles.Any(x => x.ResponsibleRole == role) == default) project.Responsibles.Add(new ProjectResponsibles()
+            //{
+            //    ProjectId = projectId,
+            //    ResponsibleName = userLogin,
+            //    ResponsibleRole = role,
+            //});
+            //else return StatusCode(401);
 
             _logger.LogInformation($"Project: {project.Id} sending to archive");
 
@@ -133,7 +133,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
 
-            if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
+            //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
 
 
             _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
@@ -157,7 +157,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
+            //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
 
             _logger.LogInformation($"Project:{project.Id}");
 
