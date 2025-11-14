@@ -172,7 +172,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var content = CreateContentWithoutURI($"Проект согласован!");
                 var result = _projectService.NotificateAsync("OlegAss", content);
 
-                return Ok();
+
+
+                //return Ok();
             }
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
