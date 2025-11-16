@@ -23,14 +23,9 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         public async Task UpdateAsync(Project modifiedProject)
         {
-
-            //var changableProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == modifiedProject.Id);
-
-            //_context.Update(modifiedProject);
             _context.Projects.Update(modifiedProject);
 
             await _context.SaveChangesAsync();
-
         }
 
         public async Task<bool> DeleteProjectAsync(string id)

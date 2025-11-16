@@ -156,26 +156,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             if (projectId is null || role is null || userLogin is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
-
             //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
-
             _logger.LogInformation($"Project:{project.Id}");
-
 
             await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
             _logger.LogInformation("Properties updated");
 
-            if (project.LawyerStatus == "Approved" && project.BuilderStatus == "Approved" && project.FinancierStatus == "Approved")
-            {
-                project.NowStatus = "Approved";
-                _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
-                var content = CreateContentWithoutURI($"Проект согласован!");
-                var result = _projectService.NotificateAsync("OlegAss", content);
-
-
-
-                //return Ok();
-            }
+            await ChangeStatusAndNotificateIfApproved(project);
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
 
@@ -254,6 +241,17 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             content.Headers.Add("X-KEY", serviceKey);
 
             return content;
+        }
+
+        private async Task ChangeStatusAndNotificateIfApproved(Project project)
+        {
+            if (project.LawyerStatus == "Approved" && project.BuilderStatus == "Approved" && project.FinancierStatus == "Approved")
+            {
+                project.NowStatus = "Approved";
+                _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
+                var content = CreateContentWithoutURI($"Проект согласован!");
+                var result = _projectService.NotificateAsync("OlegAss", content);
+            }
         }
     }
 }
