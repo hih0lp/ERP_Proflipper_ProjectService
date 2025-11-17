@@ -156,19 +156,53 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
             if (projectId is null || role is null || userLogin is null) return BadRequest();
 
-            if (!role.Equals("GeneralDirector"))
-            {
-                var project = await _projectRepository.GetProjectByIdAsync(projectId);
-                _logger.LogInformation($"Project:{project.Id}");
-                await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
-                _logger.LogInformation("Properties updated");
-                await ChangeStatusAndNotificateIfApproved(project);
-                await _projectService.EditProjectAsync(project, null); //the same thing with role
-            }
-            else return await ToApproveGenDirProject();
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            _logger.LogInformation($"Project:{project.Id}");
+
+            await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
+
+            _logger.LogInformation("Properties updated");
+
+            await ChangeStatusAndNotificateIfApproved(project);
+            await _projectService.EditProjectAsync(project, null); //the same thing with role
+            //else return await ToApproveGenDirProject();
             return Ok();    
         }
 
+        [HttpPost("/projects/GeneralDirector-Approve")]
+        public async Task<IActionResult> ToApproveGenDirProject() //Timur R approved project
+        {
+            var project = await Request.ReadFromJsonAsync<Project>();
+            if (project.FullApproveComment is null) return BadRequest();
+
+            foreach (var responsible in project.Responsibles)
+            {
+                await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            }
+
+            project.NowStatus = "In Progress";
+            await _projectService.EditProjectAsync(project, null);
+
+            return Ok();
+        }
+
+        [HttpPost("/projects/GeneralDirector-Disapprove")]//Timur R disapproved project
+        public async Task<IActionResult> ToDisapproveGenDirProject() 
+        {
+            var project = await Request.ReadFromJsonAsync<Project>();
+            if (project.FullApproveComment is null) return BadRequest();
+
+            foreach (var responsible in project.Responsibles)
+            {
+                await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            }
+
+            //project.NowStatus = "";
+            project.IsArchived = true;
+            await _projectService.EditProjectAsync(project, null);
+
+            return Ok();
+        }
 
         [HttpGet]
         //[Authorize("OnlyForPM")]
@@ -229,22 +263,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return content;
         }
 
-        //[HttpPost]
-        private async Task<IActionResult> ToApproveGenDirProject() //TEST TEST TEST 
-        {
-            var project = await Request.ReadFromJsonAsync<Project>();
-            if (project.FullApproveComment is null) return BadRequest();
-
-            foreach (var responsible in project.Responsibles)
-            {
-               await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
-            }
-
-            project.NowStatus = "In Progress";
-            await _projectService.EditProjectAsync(project, null);
-
-            return Ok();
-        }
+        
 
         private HttpContent CreateContentWithoutURI(string message)
         {
