@@ -159,10 +159,16 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
             _logger.LogInformation($"Project:{project.Id}");
 
-            await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
-            _logger.LogInformation("Properties updated");
-
-            await ChangeStatusAndNotificateIfApproved(project);
+            if(!role.Equals("GeneralDirector"))
+            {
+                await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
+                _logger.LogInformation("Properties updated");
+                await ChangeStatusAndNotificateIfApproved(project);
+            }
+            else
+            {
+                project.NowStatus = "In Progress";
+            }
 
             await _projectService.EditProjectAsync(project, null); //the same thing with role
 

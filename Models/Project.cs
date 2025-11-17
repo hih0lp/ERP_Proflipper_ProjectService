@@ -20,6 +20,7 @@ namespace ERP_Proflipper_WorkspaceService.Models
         public List<RolesRules>? Rules { get; set; }
         public RolesLogins? RolesLogins { get; set; } 
         public string? SellerCheckJson { get; set; }
+        public string? CreatedAt { get; set; }
         public string? FinancierStatus { get; set; }
         public string? BuilderStatus { get; set; }
         public string? LawyerStatus { get; set; }

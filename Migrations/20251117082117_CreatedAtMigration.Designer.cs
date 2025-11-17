@@ -2,6 +2,7 @@
 using ERP_Proflipper_WorkspaceService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ERP_Proflipper_ProjectService.Migrations
 {
     [DbContext(typeof(ProjectsDB))]
-    partial class ProjectsDBModelSnapshot : ModelSnapshot
+    [Migration("20251117082117_CreatedAtMigration")]
+    partial class CreatedAtMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
