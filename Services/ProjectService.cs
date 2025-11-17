@@ -88,6 +88,7 @@ namespace ERP_Proflipper_ProjectService.Services
             changableProject.LawyerStatus = modifiedProject.LawyerStatus;
             changableProject.FinancierStatus = modifiedProject.FinancierStatus;
             changableProject.FullApproveComment = modifiedProject.FullApproveComment;
+            changableProject.CreatedAt = modifiedProject.CreatedAt;
 
             await _repository.UpdateAsync(changableProject); //change to user role
             
