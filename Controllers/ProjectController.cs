@@ -4,7 +4,7 @@ using ERP_Proflipper_ProjectService.Models;
 using ERP_Proflipper_ProjectService.Repositories.Interface;
 using ERP_Proflipper_ProjectService.Repositories.Ports;
 using ERP_Proflipper_ProjectService.Services;
-using ERP_Proflipper_WorkspaceService.Models;
+using ERP_Proflipper_ProjectService.Models;
 using FluentResults;
 using FluentValidation;
 using Google.Apis.Sheets.v4;
@@ -292,6 +292,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var content = CreateContentWithURI($"Проект согласован!", $"ProjectsAndDeals/projectCard?id={project.Id}");
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
-        }
+        }   
     }
 }

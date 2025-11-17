@@ -1,8 +1,8 @@
 ﻿using ERP_Proflipper_ProjectService.Models;
 using ERP_Proflipper_ProjectService.Repositories.Interface;
 using ERP_Proflipper_ProjectService.Repositories.Ports;
-using ERP_Proflipper_WorkspaceService;
-using ERP_Proflipper_WorkspaceService.Models;
+using ERP_Proflipper_ProjectService;
+using ERP_Proflipper_ProjectService.Models;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

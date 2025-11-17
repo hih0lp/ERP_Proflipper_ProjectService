@@ -1,7 +1,7 @@
 ﻿using ERP_Proflipper_ProjectService.Repositories.Interface;
 using ERP_Proflipper_ProjectService.Repositories.Ports;
 using ERP_Proflipper_ProjectService.Services;
-using ERP_Proflipper_WorkspaceService;
+using ERP_Proflipper_ProjectService;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2;
@@ -41,8 +41,9 @@ builder.Services.AddTransient<ProjectService>();
 builder.Services.AddDbContext<ProjectsDB>(options =>
 {
     options.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
+    //options.
     options.EnableSensitiveDataLogging();
-}, ServiceLifetime.Scoped); 
+}, ServiceLifetime.Scoped);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -103,6 +104,7 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowAnyOrigin());
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

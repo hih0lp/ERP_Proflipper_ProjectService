@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ERP_Proflipper_WorkspaceService.Models;
+using ERP_Proflipper_ProjectService.Models;
 
 
 namespace ERP_Proflipper_ProjectService

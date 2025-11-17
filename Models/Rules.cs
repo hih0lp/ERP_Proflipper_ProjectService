@@ -1,4 +1,4 @@
-﻿using ERP_Proflipper_WorkspaceService.Models;
+﻿using ERP_Proflipper_ProjectService.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 

@@ -1,13 +1,15 @@
 ﻿using ERP_Proflipper_ProjectService.Models;
-using ERP_Proflipper_WorkspaceService.Models;
+using ERP_Proflipper_ProjectService.Models;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
-namespace ERP_Proflipper_WorkspaceService
+namespace ERP_Proflipper_ProjectService
 {
     public class ProjectsDB : DbContext
     {
 
+        //public ProjectsDB() { Database.EnsureCreated(); }
         public ProjectsDB(DbContextOptions<ProjectsDB> options) : base(options) { }
 
         public DbSet<Project> Projects { get; set; }
@@ -15,6 +17,10 @@ namespace ERP_Proflipper_WorkspaceService
         public DbSet<RolesLogins> RolesLogins { get; set; }
         public DbSet<ProjectResponsibles> ProjectResponsibles { get; set; }
 
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,17 +32,20 @@ namespace ERP_Proflipper_WorkspaceService
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.Rules)
                 .WithOne(r => r.Project)
-                .HasForeignKey(r => r.ProjectId);
+                .HasForeignKey(r => r.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Project>()
                 .HasOne(t => t.RolesLogins)
                 .WithOne(p => p.Project)
-                .HasForeignKey<RolesLogins>(k => k.ProjectId);
+                .HasForeignKey<RolesLogins>(k => k.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Project>()
                 .HasMany(r => r.Responsibles)
                 .WithOne(x => x.Project)
-                .HasForeignKey(f => f.ProjectId);
+                .HasForeignKey(f => f.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

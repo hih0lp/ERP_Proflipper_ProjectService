@@ -1,6 +1,6 @@
 ﻿using ERP_Proflipper_ProjectService.Repositories.Interface;
-using ERP_Proflipper_WorkspaceService;
-using ERP_Proflipper_WorkspaceService.Models;
+using ERP_Proflipper_ProjectService;
+using ERP_Proflipper_ProjectService.Models;
 using Microsoft.EntityFrameworkCore;
 using ZstdSharp.Unsafe;
 

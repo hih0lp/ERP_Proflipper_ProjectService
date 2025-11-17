@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace ERP_Proflipper_WorkspaceService.Models
+namespace ERP_Proflipper_ProjectService.Models
 {
     public class Project
     {
