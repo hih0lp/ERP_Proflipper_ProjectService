@@ -158,6 +158,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             _logger.LogInformation($"Project:{project.Id}");
+            //if (project.IsArchived == true && project) 
 
             await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
 
