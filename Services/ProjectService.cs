@@ -129,28 +129,31 @@ namespace ERP_Proflipper_ProjectService.Services
             project.BuilderStatus = status;
             project.FinancierStatus = status;
 
-            //switch (role)
-            //{
-            //    case "Financier":
-            //        project.FinancierStatus = status;
-            //        project.RolesLogins.FinancierLogin = userLogin;
-            //        project.Rules.First(x => x.RoleName == role).CanRead = false;
-            //        break;
-            //    case "Lawyer":
-            //        project.LawyerStatus = status;
-            //        project.RolesLogins.LawyerLogin = userLogin;
-            //        project.Rules.First(x => x.RoleName == role).CanRead = false;
-            //        break;
-            //    case "Builder":
-            //        project.BuilderStatus = status;
-            //        project.RolesLogins.BuilderLogin = userLogin;
-            //        project.Rules.First(x => x.RoleName == role).CanRead = false;
-            //        break;
-            //    case "ProjectManager":
-            //        project.RolesLogins.ProjectManagerLogin = userLogin;
-            //        project.Rules.First(x => x.RoleName == role).CanRead = false;
-            //        break;
-            //}
+            switch (role)
+            {
+                case "Financier":
+                    project.FinancierStatus = status;
+                    project.RolesLogins.FinancierLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "Lawyer":
+                    project.LawyerStatus = status;
+                    project.RolesLogins.LawyerLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "Builder":
+                    project.BuilderStatus = status;
+                    project.RolesLogins.BuilderLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "ProjectManager":
+                    project.RolesLogins.ProjectManagerLogin = userLogin;
+                    project.Rules.First(x => x.RoleName == role).CanRead = false;
+                    break;
+                case "GeneralDirector":
+                    project.NowStatus = "In Progress";
+                    break;
+            }
 
             await _repository.UpdateAsync(project);
         }

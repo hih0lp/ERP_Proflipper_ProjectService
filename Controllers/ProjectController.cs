@@ -128,8 +128,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<IActionResult> ToFinalizeProject(string projectId, string role, string userLogin)
         {
             if (projectId is null || role is null || userLogin is null) return BadRequest();
-
             var project = await _projectRepository.GetProjectByIdAsync(projectId);//get project
+
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
 
@@ -139,7 +139,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
 
-            await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project); //ask egorik blin
+            await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project); 
 
             var content = CreateContentWithURI(message, $"ProjectsAndDeals/projectCard?id={project.Id}");
             var result = await _projectService.NotificateAsync("OlegAss", content);
@@ -153,20 +153,24 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
-            if (projectId is null || role is null || userLogin is null) return BadRequest();
-
-            var project = await _projectRepository.GetProjectByIdAsync(projectId);
             //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
+            if (projectId is null || role is null || userLogin is null) return BadRequest();
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+
+            var message = (await new StreamReader(Request.Body).ReadToEndAsync());
+            if (message is null) return BadRequest();
+
             _logger.LogInformation($"Project:{project.Id}");
 
             if(!role.Equals("GeneralDirector"))
             {
                 await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
                 _logger.LogInformation("Properties updated");
-                await ChangeStatusAndNotificateIfApproved(project);
+                await ChangeStatusAndNotificateIfApproved(project, message);
             }
             else
             {
+                await _projectService.NotificateAsync("OlegAss", CreateContentWithoutURI(message));
                 project.NowStatus = "In Progress";
             }
 
@@ -249,13 +253,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return content;
         }
 
-        private async Task ChangeStatusAndNotificateIfApproved(Project project)
+        private async Task ChangeStatusAndNotificateIfApproved(Project project, string comment)
         {
             if (project.LawyerStatus == "Approved" && project.BuilderStatus == "Approved" && project.FinancierStatus == "Approved")
             {
                 project.NowStatus = "Approved";
                 _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
-                var content = CreateContentWithoutURI($"Проект согласован!");
+                var content = CreateContentWithoutURI($"Проект согласован! {comment}");
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
         }
