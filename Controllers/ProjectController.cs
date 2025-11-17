@@ -65,7 +65,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         public async Task<StatusCodeResult> EditProjectAsync()
         {
             var project = await Request.ReadFromJsonAsync<Project>();
-
+            _logger.LogInformation($"{project.CreatedAt}");
 
             _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
