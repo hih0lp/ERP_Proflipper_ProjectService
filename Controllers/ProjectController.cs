@@ -199,6 +199,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             //project.NowStatus = "";
             project.IsArchived = true;
+            project.NowStatus = "Archived";
             await _projectService.EditProjectAsync(project, null);
 
             return Ok();
