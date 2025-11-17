@@ -289,7 +289,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 project.NowStatus = "Approved";
                 _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
-                var content = CreateContentWithoutURI($"Проект согласован!");
+                var content = CreateContentWithURI($"Проект согласован!", $"ProjectsAndDeals/projectCard?id={project.Id}");
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
         }
