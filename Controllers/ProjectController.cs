@@ -169,22 +169,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             return Ok();    
         }
 
-        //[HttpPost]
-        private async Task<IActionResult> ToApproveGenDirProject()
-        {
-            var project = await Request.ReadFromJsonAsync<Project>();
-            if (project.FullApproveComment is null) return BadRequest();
-
-            foreach (var responsible in project.Responsibles)
-            {
-               await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
-            }
-
-            project.NowStatus = "In Progress";
-            await _projectService.EditProjectAsync(project, null);
-
-            return Ok();
-        }
 
         [HttpGet]
         //[Authorize("OnlyForPM")]
@@ -243,6 +227,23 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             content.Headers.Add("X-KEY", serviceKey);
 
             return content;
+        }
+
+        //[HttpPost]
+        private async Task<IActionResult> ToApproveGenDirProject() //TEST TEST TEST 
+        {
+            var project = await Request.ReadFromJsonAsync<Project>();
+            if (project.FullApproveComment is null) return BadRequest();
+
+            foreach (var responsible in project.Responsibles)
+            {
+               await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            }
+
+            project.NowStatus = "In Progress";
+            await _projectService.EditProjectAsync(project, null);
+
+            return Ok();
         }
 
         private HttpContent CreateContentWithoutURI(string message)
