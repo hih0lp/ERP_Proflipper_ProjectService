@@ -114,7 +114,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project: {project.Id} sending to archive");
 
             project.IsArchived = true;
-            
+            project.NowStatus = "Archived";
 
             await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
 
