@@ -161,6 +161,15 @@ namespace ERP_Proflipper_ProjectService.Services
             await _repository.UpdateAsync(project);
         }
 
+        public async Task ConnectProjectWithResponsible(string userLogin, string userRole, Project project)
+        {
+            switch (userRole)
+            {
+                case "ProjectManager":
+                    project.res
+            }
+        }
+
         public async Task<bool> CheckAccessAndRules(string projectId, string role, string userLogin)
         {
             var project = await _repository.GetProjectByIdAsync(projectId);

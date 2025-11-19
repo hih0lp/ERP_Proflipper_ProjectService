@@ -179,10 +179,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await Request.ReadFromJsonAsync<Project>();
             if (project.FullApproveComment is null) return BadRequest();
 
-            foreach (var responsible in project.Responsibles)
-            {
-                await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
-            }
+            
 
             project.NowStatus = "In Progress";
             await _projectService.EditProjectAsync(project, null);
@@ -196,10 +193,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await Request.ReadFromJsonAsync<Project>();
             if (project.FullApproveComment is null) return BadRequest();
 
-            foreach (var responsible in project.Responsibles)
-            {
-                await _projectService.NotificateAsync(responsible.ResponsibleName, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
-            }
+            await NotificateAllResponsibleAsync(project);
 
             //project.NowStatus = "";
             project.IsArchived = true;
@@ -294,5 +288,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
         }   
+
+        private async Task NotificateAllResponsibleAsync(Project project)
+        {
+            await _projectService.NotificateAsync(project.RolesLogins.FinancierLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            await _projectService.NotificateAsync(project.RolesLogins.LawyerLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            await _projectService.NotificateAsync(project.RolesLogins.BuilderLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+        }
     }
 }
