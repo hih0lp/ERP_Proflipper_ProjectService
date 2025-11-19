@@ -53,6 +53,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             Project project = new Project();
 
             var id = await _projectService.CreateProjectInDB(project); //get project id when it is already in db
+            
 
             _logger.LogInformation($"New project. ID: {id}");
 
