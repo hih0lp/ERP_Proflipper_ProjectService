@@ -179,7 +179,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             var project = await Request.ReadFromJsonAsync<Project>();
             if (project.FullApproveComment is null) return BadRequest();
 
-            
+            await NotificateAllResponsibleAsync(project);
 
             project.NowStatus = "In Progress";
             await _projectService.EditProjectAsync(project, null);
