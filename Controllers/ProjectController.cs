@@ -288,5 +288,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
         }   
+
+        private async Task NotificateAllResponsibleAsync(Project project)
+        {
+            await _projectService.NotificateAsync(project.RolesLogins.FinancierLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            await _projectService.NotificateAsync(project.RolesLogins.LawyerLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+            await _projectService.NotificateAsync(project.RolesLogins.BuilderLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
+        }
     }
 }
