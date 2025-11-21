@@ -43,7 +43,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         {
             return await _context.Projects
             .Include(x => x.Rules)
-            .Include(x => x.Responsibles)
+            //.Include(x => x.Responsibles)
             .Include(x => x.RolesLogins)
             .FirstOrDefaultAsync(p => p.Id == id);
             
@@ -63,8 +63,8 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
                 .Where(x => x.Rules.Any(r => r.RoleName == role && r.CanRead == true) 
                     && x.IsArchived == false 
                     && x.IsFinished == false) 
-                .Include(x => x.Responsibles)
-                .Where(x => x.Responsibles.Any(x => string.IsNullOrEmpty(x.ResponsibleName) && x.ResponsibleRole == role))
+                //.Include(x => x.Responsibles)
+                //.Where(x => x.Responsibles.Any(x => string.IsNullOrEmpty(x.ResponsibleName) && x.ResponsibleRole == role))
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
                 .ToListAsync();
@@ -90,7 +90,7 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
         {
             return await _context.Projects
                 .Include(x => x.Rules)
-                .Include(x => x.Responsibles)
+                //.Include(x => x.Responsibles)
                 .Include(x => x.RolesLogins)
                 .Where(x => (x.RolesLogins.FinancierLogin == login 
                     || x.RolesLogins.BuilderLogin == login 
@@ -101,11 +101,11 @@ namespace ERP_Proflipper_ProjectService.Repositories.Ports
 
         public async Task<List<Project>> GetAllProjectsByStatus(string status)
         {
-            var projects = await _context.Projects
+            var projects = await _context.Projects //спросить, какие роли видят согласование и тд
                 .Where(x => x.NowStatus == status)
                 .Include(x => x.Rules)
                 .Include(x => x.RolesLogins)
-                .Include(x => x.Responsibles)
+                //.Include(x => x.Responsibles)
                 .ToListAsync();
 
             return projects;

@@ -18,6 +18,8 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Identity;
 
 
 
@@ -104,19 +106,11 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         {
             if (projectId is null) return BadRequest();
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
-            //if (project.Responsibles.Any(x => x.ResponsibleRole == role) == default) project.Responsibles.Add(new ProjectResponsibles()
-            //{
-            //    ProjectId = projectId,
-            //    ResponsibleName = userLogin,
-            //    ResponsibleRole = role,
-            //});
-            //else return StatusCode(401);
 
 
             _logger.LogInformation($"Project: {project.Id} sending to archive");
 
             project.IsArchived = true;
-            //project.NowStatus = "Archived";
             await _projectService.EditPropertiesAsync(role, "Archived", userLogin, project);
 
             await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
@@ -136,8 +130,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             string? message = (await new StreamReader(Request.Body).ReadToEndAsync()); //read message from json
             if (message is null) return BadRequest();
 
-            //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
-
 
             _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
@@ -152,16 +144,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        //[Authorize("OnlyForPM")]
         [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")] 
         public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
         {
-            //if (!(await _projectService.CheckAccessAndRules(projectId, role, userLogin))) return StatusCode(401);
             if (projectId is null || role is null || userLogin is null) return BadRequest();
 
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             _logger.LogInformation($"Project:{project.Id}");
-            //if (project.IsArchived == true && project) 
 
             await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
 
@@ -169,7 +158,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             await ChangeStatusAndNotificateIfApproved(project);
             await _projectService.EditProjectAsync(project, null); //the same thing with role
-            //else return await ToApproveGenDirProject();
             return Ok();    
         }
 
@@ -183,7 +171,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             project.NowStatus = "In Progress";
             await _projectService.EditProjectAsync(project, null);
-
+            
             return Ok();
         }
 
@@ -294,7 +282,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             //await _projectService.NotificateAsync(project.RolesLogins.FinancierLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
             //await _projectService.NotificateAsync(project.RolesLogins.LawyerLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
             //await _projectService.NotificateAsync(project.RolesLogins.BuilderLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}"));
-            await _projectService.NotificateAsync(project.RolesLogins.ProjectManagerLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}")); //delete when roles 
+            await _projectService.NotificateAsync(project.RolesLogins.ProjectManagerLogin, CreateContentWithURI(project.FullApproveComment, $"ProjectsAndDeals/projectCard?id={project.Id}")); //delete when roles wiil be
         }
     }
 }

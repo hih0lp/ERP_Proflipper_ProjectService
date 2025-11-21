@@ -17,7 +17,7 @@ namespace ERP_Proflipper_ProjectService.Models
         public string? SubStatus { get; set; }
         public int? ApproveStatus { get; set; } = 0;
         public string? FullApproveComment { get; set; }
-        public List<ProjectResponsibles>? Responsibles { get; set; } = new();
+        //public List<ProjectResponsibles>? Responsibles { get; set; } = new();
         public List<RolesRules>? Rules { get; set; }
         public RolesLogins? RolesLogins { get; set; } 
         public string? SellerCheckJson { get; set; }

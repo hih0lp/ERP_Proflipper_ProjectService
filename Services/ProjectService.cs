@@ -162,28 +162,28 @@ namespace ERP_Proflipper_ProjectService.Services
         }
 
 
-        public async Task<bool> CheckAccessAndRules(string projectId, string role, string userLogin)
-        {
-            var project = await _repository.GetProjectByIdAsync(projectId);
+        //public async Task<bool> CheckAccessAndRules(string projectId, string role, string userLogin)
+        //{
+        //    var project = await _repository.GetProjectByIdAsync(projectId);
 
-            if (project.Responsibles.Any(x => x.ResponsibleRole == role) == null) project.Responsibles.Add(new ProjectResponsibles()
-            {
-                ProjectId = projectId,
-                ResponsibleName = userLogin,
-                ResponsibleRole = role,
-                Project = project
-            });
+        //    if (project.Responsibles.Any(x => x.ResponsibleRole == role) == null) project.Responsibles.Add(new ProjectResponsibles()
+        //    {
+        //        ProjectId = projectId,
+        //        ResponsibleName = userLogin,
+        //        ResponsibleRole = role,
+        //        Project = project
+        //    });
 
-            Console.WriteLine(1234567890);
-            //else return false;
+        //    Console.WriteLine(1234567890);
+        //    //else return false;
 
-            if (project.Rules
-                .Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead) || project.Responsibles
-                .Any(x => x.ResponsibleName != userLogin))) return false; //check for rules
+        //    if (project.Rules
+        //        .Any(x => x.RoleName == role && (!x.CanWrite || !x.CanRead) || project.Responsibles
+        //        .Any(x => x.ResponsibleName != userLogin))) return false; //check for rules
 
-            Console.WriteLine(1234567890);
+        //    Console.WriteLine(1234567890);
 
-            return true;
-        }
+        //    return true;
+        //}
     }
 }
