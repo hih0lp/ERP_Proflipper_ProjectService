@@ -6,6 +6,7 @@ using ERP_Proflipper_ProjectService.Repositories.Ports;
 using ERP_Proflipper_ProjectService.Services;
 using ERP_Proflipper_ProjectService.Models;
 using FluentResults;
+//using Microsoft.AspNetCore.Identity
 using FluentValidation;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
@@ -201,12 +202,21 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         //[Authorize("OnlyForPM")]
-        [Route("/projects/status={status}")]
-        public async Task<IActionResult> GetProjectsByStatus(string status)
+        [Route("/projects/status={status}/role={role}/login={userLogin}")]
+        public async Task<IActionResult> GetProjectsByStatus(string status, string role, string userLogin)
         {
             try
             {
                 var jsonList = await _projectRepository.GetAllProjectsByStatus(status);
+                jsonList = jsonList
+                    .Where(x => x.Rules.Any(t => t.RoleName == role && t.CanRead))
+                    .Where(x => x.RolesLogins.BuilderLogin == userLogin 
+                        || x.RolesLogins.FinancierLogin == userLogin 
+                        || x.LawyerCardJson == userLogin 
+                        || x.RolesLogins.ProjectManagerLogin == userLogin)
+                    .ToList();
+
+
                 return Json(jsonList);
 
             }

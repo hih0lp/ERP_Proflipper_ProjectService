@@ -40,7 +40,7 @@ builder.Services.AddTransient<ProjectService>();
 
 builder.Services.AddDbContext<ProjectsDB>(options =>
 {
-    options.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
+    options.UseNpgsql("Host=localhost; Port=5432; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
     //options.
     options.EnableSensitiveDataLogging();
 }, ServiceLifetime.Scoped);
