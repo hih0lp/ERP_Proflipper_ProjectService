@@ -74,7 +74,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
             await _projectService.EditProjectAsync(project, null);
-
             return Ok();
         }
 
