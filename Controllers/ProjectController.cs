@@ -74,7 +74,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
             await _projectService.EditProjectAsync(project, null);
-
             return Ok();
         }
 
@@ -202,19 +201,19 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpGet]
         //[Authorize("OnlyForPM")]
-        [Route("/projects/status={status}/role={role}/login={userLogin}")]
+        [Route("/projects/status={status}")]// /role={role}/login={userLogin}
         public async Task<IActionResult> GetProjectsByStatus(string status, string role, string userLogin)
         {
             try
             {
                 var jsonList = await _projectRepository.GetAllProjectsByStatus(status);
-                jsonList = jsonList
-                    .Where(x => x.Rules.Any(t => t.RoleName == role && t.CanRead))
-                    .Where(x => x.RolesLogins.BuilderLogin == userLogin 
-                        || x.RolesLogins.FinancierLogin == userLogin 
-                        || x.LawyerCardJson == userLogin 
-                        || x.RolesLogins.ProjectManagerLogin == userLogin)
-                    .ToList();
+                //jsonList = jsonList
+                //    .Where(x => x.Rules.Any(t => t.RoleName == role && t.CanRead))
+                //    .Where(x => x.RolesLogins.BuilderLogin == userLogin 
+                //        || x.RolesLogins.FinancierLogin == userLogin 
+                //        || x.LawyerCardJson == userLogin 
+                //        || x.RolesLogins.ProjectManagerLogin == userLogin)
+                    //.ToList();
 
 
                 return Json(jsonList);
