@@ -9,6 +9,9 @@ using Google.Apis.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using Newtonsoft.Json.Linq;
@@ -21,6 +24,12 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
+/// ИТАК
+/// очень много методов без тестов, потому что фронт у егорика упал чето
+/// короче, по идее тут однозначно можно будет сказать после тестов, но по идее все должно работать, если тебе нужно, чтобы работало хоть что-то, 
+/// то просто вытащи из методов, где есть изменения классов, все обратно в метод контроллера. Такой метод, например, EditProjectAsync(),
+/// снизу два метода, там что-то наподобие GendirApprove и тп - их раскомменти, они рабочие, но я их просто комментил во время отладки
+/// Для проверки используется запрос в юзер-сервис и токен-сервис, поэтому не забывай их включить, когда тестишь
 
 
 namespace ERP_Proflipper_WorkspaceService.Controllers
@@ -48,12 +57,25 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        //[Authorize("OnlyForPM")] //TODO general director also can make it
         [Route("/project/create")]
-        public async Task<IActionResult> CreateProject()
+        public async Task<IActionResult> CreateProject() //добавить привязку к роли пм сразу же
         {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var parsedUserModel = await GetUserModelJsonAsync(authHeader);
+
+            if (parsedUserModel is null) //возможно, нужно поменять код ошибки, даже скорее всего, а не возможно
+                return BadRequest("Failed get user rights");
+
+            if (parsedUserModel["gendirRole"].ToObject<bool>() == false && parsedUserModel["canCreateProject"].ToObject<bool>() == false)
+            {
+                _logger.LogError($"No rights, userLogin: {parsedUserModel["login"]}");
+                return BadRequest("No rights");
+            }
+
             Project project = new Project();
-            var id = await _projectService.CreateProjectInDB(project); //сюда еще логин есть
+            //project.RolesLogins.ProjectManagerLogin = parsedUserModel["login"].ToString();
+
+            var id = await _projectService.CreateProjectInDB(project, parsedUserModel["login"].ToString()); //сюда еще логин есть
 
             _logger.LogInformation($"New project. ID: {id}");
 
@@ -65,15 +87,20 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/project/edit")]
         public async Task<StatusCodeResult> EditProjectAsync()
         {
-            var project = await Request.ReadFromJsonAsync<Project>();
+            var project = await Request.ReadFromJsonAsync<Project>(); //сделать тут проверку на роли
+            //Поскольку ТЗ на роли нет, то есть общая проверка на роли, но не более
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var parsedUserModel = await GetUserModelJsonAsync(authHeader);
+
             _logger.LogInformation($"{project.CreatedAt}");
 
             _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
-            await _projectService.EditProjectAsync(project, null);
+            await _projectService.EditProjectAsync(project, parsedUserModel["role"].ToString(), parsedUserModel["login"].ToString());
             _logger.LogInformation("IOGBNROIMBPGNPIOTMSBSIHPHYUNPBISGTRPISIBPPIHJ");
             return Ok();
         }
+
 
         [HttpPost]
         [Route("/project/to-pm-approve")]
@@ -88,7 +115,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var authHeader = Request.Headers["Authorization"].ToString();
                 var parsedUserModel = await GetUserModelJsonAsync(authHeader);
 
-                if (parsedUserModel is null) 
+                if (parsedUserModel is null)
                     return BadRequest("Failed get user rights");
 
                 if (parsedUserModel["gendirRole"].ToObject<bool>() == false && parsedUserModel["canSendToApproveProject"].ToObject<bool>() == false)
@@ -97,13 +124,42 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                     return BadRequest("No rights");
                 }
 
-                project.NowStatus = "Approving";
-                project.RolesLogins.ProjectManagerLogin = parsedUserModel["login"].ToString();
+                var dbProject = await _projectRepository.GetProjectByIdAsync(project.Id);
 
-                await _projectService.EditProjectAsync(project, null);
+                if (dbProject is null) return BadRequest("Проекта не существует");
+                if (parsedUserModel["gendirRole"].ToObject<bool>() == false)
+                {
+                    if (dbProject.NowStatus == "Approving" || dbProject.NowStatus == "Approved" || dbProject.IsArchived)
+                        return BadRequest("Project already approving");
+                }
+
+                dbProject.NowStatus = "Approving";
+
+                _logger.LogInformation($"City from : {parsedUserModel["city"].ToString()}");
 
                 var content = CreateContentWithURI("Проект отправлен на согласование!", $"ProjectsAndDeals/projectCard?id={project.Id}");
-                var result = await _projectService.NotificateAsync(parsedUserModel["login"].ToString(), content);
+
+                var builder = await GetBuilderJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
+                var financier = await GetFinancierJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
+                var lawyer = await GetLawyerJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
+
+                if (builder is not null && !builder["login"].ToString().IsNullOrEmpty())
+                {
+                    dbProject.RolesLogins.BuilderLogin = builder["login"].ToString();
+                    await _projectService.NotificateAsync(builder["login"].ToString(), content);
+                }
+                if (financier is not null && !financier["login"].ToString().IsNullOrEmpty())
+                {
+                    dbProject.RolesLogins.FinancierLogin = financier["login"].ToString();
+                    await _projectService.NotificateAsync(financier["login"].ToString(), content);
+                }
+                if (lawyer is not null && !lawyer["login"].ToString().IsNullOrEmpty())
+                {
+                    dbProject.RolesLogins.LawyerLogin = lawyer["login"].ToString();
+                    await _projectService.NotificateAsync(lawyer["login"].ToString(), content);
+                }
+
+                await _projectRepository.UpdateAsync(dbProject);
 
                 return Ok();
             }
@@ -114,9 +170,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             }
         }
 
-
         [HttpPut]
-        [Route("/projects/disapprove-project/{projectId}/{role}/{userLogin}")]
+        [Route("/projects/disapprove-project/{projectId}")] 
         public async Task<IActionResult> DisapproveProject(string projectId, string role, string userLogin)
         {
             try ///TODO : ПРОСТО НАХУЙ ЗАПРОС НЕ ПРИХОДИТ БЛЯТЬ ДАЖЕ. ЗАПРОС НЕ КИДАЕТСЯ СЮДА АЛО АЛО АЛО 
@@ -149,10 +204,18 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 var dbProject = await _projectRepository.GetProjectByIdAsync(projectId);
 
+                if (userParsedModel["gendirRole"].ToObject<bool>() == false)
+                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) || //ТУТ НУЖНА ЛОГИКА С РОЛЯМИ (ОНА В МЕТОДЕ EDITPROJECTASYNC, только закомментирована)
+                        !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.LawyerLogin) ||
+                        !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.FinancierLogin))
+                    {
+                        return BadRequest("no rights");
+                    }
+
                 dbProject.IsArchived = true;
                 await _projectRepository.UpdateAsync(dbProject);
 
-                await _projectService.EditProjectAsync(project, null); //null must be a role when we will deploy or test with many roles
+                await _projectService.EditProjectAsync(project, null, userParsedModel["login"].ToString()); 
 
                 return Ok();
             }///TODO : НЕ РАБОТАЕТ БЛЯТЬ, ЧЕ ЗА ХУЙНЯ, ЕГОР ЮДИН
@@ -193,6 +256,14 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                     return BadRequest();
 
 
+                if (userParsedModel["gendirRole"].ToObject<bool>() == false)
+                    if (!userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.BuilderLogin) ||
+                        !userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.LawyerLogin) || //чисто для проверки того, является ли юзер хотя бы одним из ответственных за проект
+                        !userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.FinancierLogin))
+                    {
+                        return BadRequest("no rights");
+                    }
+
                 _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
 
@@ -212,37 +283,43 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
         [HttpPost]
-        [Route("/projects/to-all-approve/{projectId}/{role}/{userLogin}")]
-        public async Task<IActionResult> ToApproveProject(string projectId, string role, string userLogin)
+        [Route("/projects/to-all-approve/{projectId}")]
+        public async Task<IActionResult> ToApproveProject(string projectId)
         {
             try
             {
-                if (projectId is null || role is null || userLogin is null) return BadRequest();
+                if (projectId is null) return BadRequest();
                 _logger.LogInformation("PIKEMNBHIURDNMNBOIDTJNBIURMT[OBNIPDSTRBHPOSIJTRHNPIBTRMN;OSITDJNISRUTNGLIRSTHUJNPSRITHUNB;OTHIJNYP9DSTUHJNP;TRSM");
-                //var project = await _projectRepository.GetProjectByIdAsync(projectId);
-                //_logger.LogInformation($"Project:{project.Id}");
+                var project = await _projectRepository.GetProjectByIdAsync(projectId);
+                _logger.LogInformation($"Project:{project.Id}");
 
-                ////await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
+                //await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
                 //project.LawyerStatus = "Approved";
                 //project.FinancierStatus = "Approved";
                 //project.BuilderStatus = "Approved";
                 //project.NowStatus = "Approved";
-                //// await _projectService.EditProjectAsync(project, null);
-                //await _projectRepository.UpdateAsync(project);
+                // await _projectService.EditProjectAsync(project, null);
+                await _projectRepository.UpdateAsync(project);
 
-                //_logger.LogInformation("Properties updated");
+                _logger.LogInformation("Properties updated");
 
-                //await ChangeStatusAndNotificateIfApproved(project);
-                //await _projectService.EditProjectAsync(project, null); //the same thing with role
+                await ChangeStatusAndNotificateIfApproved(project);
+                await _projectService.EditProjectAsync(project, null, null); //добавить сюда проверку на роли и логины (можно выше взять, просто права поменять)
                 return Ok();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                _logger?.LogError(e.Message);
+                return BadRequest("Logic error");
             }
         }
+
+
+        //private async Task<IActionResult> ApproveProjectByRole()
+        //{
+
+        //}
 
         //[HttpPost("/projects/GeneralDirector-Approve")]
         //public async Task<IActionResult> ToApproveGenDirProject() //Timur R approved project
@@ -405,6 +482,63 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
                 return JObject.Parse(userRightsJson);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return null;
+            }
+        }
+
+        private async Task<JObject> GetBuilderJsonAsync(string city)
+        {
+            try
+            {
+                _logger.LogInformation(city + "649876948ujtoiuj");
+                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-builder-role/{city}");
+                var builderJson = await userModelResponse.Content.ReadAsStringAsync();
+
+
+                return JObject.Parse(builderJson);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return null;
+            }
+        }
+
+        private async Task<JObject> GetLawyerJsonAsync(string city)
+        {
+            try
+            {
+
+                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-lawyer-role/{city}");
+                var lawyerJson = await userModelResponse.Content.ReadAsStringAsync();
+
+
+                return JObject.Parse(lawyerJson);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return null;
+            }
+        }
+
+        private async Task<JObject> GetFinancierJsonAsync(string city)
+        {
+            try
+            {
+
+                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-financier-role/{city}");
+                var financierJson = await userModelResponse.Content.ReadAsStringAsync();
+
+
+                return JObject.Parse(financierJson);
 
             }
             catch (Exception ex)
