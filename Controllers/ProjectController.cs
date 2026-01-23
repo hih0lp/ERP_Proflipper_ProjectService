@@ -96,7 +96,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
             _logger.LogInformation($"Project by ID: {project.Id} has been edited");
 
-            await _projectService.EditProjectAsync(project, parsedUserModel["role"].ToString(), parsedUserModel["login"].ToString());
+            await _projectService.EditProjectAsync(project); //, parsedUserModel["role"].ToString(), parsedUserModel["login"].ToString()
             _logger.LogInformation("IOGBNROIMBPGNPIOTMSBSIHPHYUNPBISGTRPISIBPPIHJ");
             return Ok();
         }
@@ -143,7 +143,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 var financier = await GetFinancierJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
                 var lawyer = await GetLawyerJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
 
-                if (builder is not null && !builder["login"].ToString().IsNullOrEmpty())
+                if (builder is not null && !builder["login"].ToString().IsNullOrEmpty()) //закрепляются те типы, которые существуют в этом городе
                 {
                     dbProject.RolesLogins.BuilderLogin = builder["login"].ToString();
                     await _projectService.NotificateAsync(builder["login"].ToString(), content);
@@ -169,19 +169,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 return BadRequest("Logic error");
             }
         }
-
+        //возможно, что-то будет с json'ом и нужно будет просто с регистром поиграться
         [HttpPut]
         [Route("/projects/disapprove-project/{projectId}")] 
-        public async Task<IActionResult> DisapproveProject(string projectId, string role, string userLogin)
+        public async Task<IActionResult> DisapproveProject(string projectId) //string role, string userLogin
         {
             try ///TODO : ПРОСТО НАХУЙ ЗАПРОС НЕ ПРИХОДИТ БЛЯТЬ ДАЖЕ. ЗАПРОС НЕ КИДАЕТСЯ СЮДА АЛО АЛО АЛО 
             {
-                //_logger.LogInformation("dfpbmrspijnbprsmtnibprsui9gjnb0s[igjrnp9srutnmpbsi9p9bijgtp9s8isnp");
-                _logger.LogError("EOIHJORIHMBORIMNBROIUNB");
-
                 if (projectId is null) return BadRequest();
                 var project = await _projectRepository.GetProjectByIdAsync(projectId);
-                _logger.LogError("Ok");
 
                 var userParsedModel = await GetUserModelJsonAsync(Request.Headers["Authorization"].ToString());
                 if (userParsedModel is null)
@@ -212,10 +208,15 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                         return BadRequest("no rights");
                     }
 
+                string userRole = userParsedModel["role"].ToString();
+                if (userRole == "Builder") dbProject.BuilderStatus = "Archived";
+                else if (userRole == "Lawyer") dbProject.LawyerStatus = "Archived";
+                else if (userRole == "Financier") dbProject.FinancierStatus = "Archived";
+
                 dbProject.IsArchived = true;
                 await _projectRepository.UpdateAsync(dbProject);
 
-                await _projectService.EditProjectAsync(project, null, userParsedModel["login"].ToString()); 
+                //await _projectService.EditProjectAsync(project); //, null, userParsedModel["login"].ToString()
 
                 return Ok();
             }///TODO : НЕ РАБОТАЕТ БЛЯТЬ, ЧЕ ЗА ХУЙНЯ, ЕГОР ЮДИН
@@ -264,13 +265,21 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                         return BadRequest("no rights");
                     }
 
+                var dbProject = await _projectRepository.GetProjectByIdAsync(projectId);
+
                 _logger.LogInformation($"Project {projectId} has been sending to finalize by {role}");
 
+                string userRole = userParsedModel["role"].ToString();
+                if (userRole == "Builder") dbProject.BuilderStatus = "Finalize";
+                else if (userRole == "Lawyer") dbProject.LawyerStatus = "Finalize";
+                else if (userRole == "Financier") dbProject.FinancierStatus = "Finalize";
 
-                await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project);
+                await _projectRepository.UpdateAsync(dbProject);
+                //await _projectService.EditPropertiesAsync(role, "Finalize", userLogin, project);
+                
 
                 var content = CreateContentWithURI(message, $"ProjectsAndDeals/projectCard?id={project.Id}");
-                var result = await _projectService.NotificateAsync("OlegAss", content);
+                var result = await _projectService.NotificateAsync(dbProject.RolesLogins.ProjectManagerLogin, content);
 
                 return result.IsSuccess ? Ok() : BadRequest(result.Errors);
             }
@@ -281,7 +290,6 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             }
         }
 
-
         [HttpPost]
         [Route("/projects/to-all-approve/{projectId}")]
         public async Task<IActionResult> ToApproveProject(string projectId)
@@ -289,9 +297,39 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
                 if (projectId is null) return BadRequest();
-                _logger.LogInformation("PIKEMNBHIURDNMNBOIDTJNBIURMT[OBNIPDSTRBHPOSIJTRHNPIBTRMN;OSITDJNISRUTNGLIRSTHUJNPSRITHUNB;OTHIJNYP9DSTUHJNP;TRSM");
                 var project = await _projectRepository.GetProjectByIdAsync(projectId);
-                _logger.LogInformation($"Project:{project.Id}");
+
+                var userParsedModel = await GetUserModelJsonAsync(Request.Headers["Authorization"].ToString());
+                if (userParsedModel is null)
+                    return BadRequest("user not found");
+                if (userParsedModel["canBuilderApproveFinalizeDisapproveProject"].ToObject<bool>() == false &&
+                        userParsedModel["canFinancierApproveFinalizeDisapproveProject"].ToObject<bool>() == false &&
+                        userParsedModel["canLawyerApproveFinalizeDisapproveProject"].ToObject<bool>() == false &&
+                        userParsedModel["gendirRole"].ToObject<bool>() == false)
+                {
+                    _logger.LogError("No rights");
+                    return BadRequest("No rights");
+                }
+
+                var dbProject = await _projectRepository.GetProjectByIdAsync(projectId);
+
+                if (userParsedModel["gendirRole"].ToObject<bool>() == false)
+                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) || //ТУТ НУЖНА ЛОГИКА С РОЛЯМИ (ОНА В МЕТОДЕ EDITPROJECTASYNC, только закомментирована)
+                        !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.LawyerLogin) ||
+                        !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.FinancierLogin))
+                    {
+                        return BadRequest("no rights");
+                    }
+
+
+                string userRole = userParsedModel["role"].ToString();
+                if (userRole == "Builder") dbProject.BuilderStatus = "Approved";
+                else if (userRole == "Lawyer") dbProject.LawyerStatus = "Approved";
+                else if (userRole == "Financier") dbProject.FinancierStatus = "Approved";
+                //if (projectId is null) return BadRequest();
+                //_logger.LogInformation("PIKEMNBHIURDNMNBOIDTJNBIURMT[OBNIPDSTRBHPOSIJTRHNPIBTRMN;OSITDJNISRUTNGLIRSTHUJNPSRITHUNB;OTHIJNYP9DSTUHJNP;TRSM");
+                //var project = await _projectRepository.GetProjectByIdAsync(projectId);
+                //_logger.LogInformation($"Project:{project.Id}");
 
                 //await _projectService.EditPropertiesAsync(role, "Approved", userLogin, project);
                 //project.LawyerStatus = "Approved";
@@ -299,12 +337,18 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 //project.BuilderStatus = "Approved";
                 //project.NowStatus = "Approved";
                 // await _projectService.EditProjectAsync(project, null);
+                if (dbProject.BuilderStatus == "Approved" && dbProject.LawyerStatus == "Approved" && dbProject.FinancierStatus == "Approved")
+                {
+                    var content = CreateContentWithURI("Проект был подтвержден главами отделов", $"ProjectsAndDeals/projectCard?id={project.Id}");
+                    var genDir = await GetGendirLogin();
+                }
+
                 await _projectRepository.UpdateAsync(project);
 
                 _logger.LogInformation("Properties updated");
 
                 await ChangeStatusAndNotificateIfApproved(project);
-                await _projectService.EditProjectAsync(project, null, null); //добавить сюда проверку на роли и логины (можно выше взять, просто права поменять)
+                await _projectService.EditProjectAsync(project);//, null, null //добавить сюда проверку на роли и логины (можно выше взять, просто права поменять)
                 return Ok();
 
             }
@@ -314,6 +358,25 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 return BadRequest("Logic error");
             }
         }
+        private async Task<JObject> GetGendirLogin()
+        {
+            try
+            {
+                //_logger.LogInformation(city + "649876948ujtoiuj");
+                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-gendir-login");
+                var genDirJson = await userModelResponse.Content.ReadAsStringAsync();
+
+
+                return JObject.Parse(genDirJson);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return null;
+            }
+        }
+
 
 
         //private async Task<IActionResult> ApproveProjectByRole()

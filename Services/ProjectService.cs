@@ -53,7 +53,7 @@ namespace ERP_Proflipper_ProjectService.Services
             return project.Id;
         }
 
-        public async Task EditProjectAsync(Project modifiedProject, string role, string userLogin) //mb need to add something like a check an accessibility of db, params string modifable project card
+        public async Task EditProjectAsync(Project modifiedProject)//params , string role, string userLogin  //mb need to add something like a check an accessibility of db, params string modifable project card
         {
             
             var changableProject = await _repository.GetProjectByIdAsync(modifiedProject.Id);
@@ -67,31 +67,31 @@ namespace ERP_Proflipper_ProjectService.Services
             //_logger.LogInformation(modifiedProject.Id);
             //_logger.LogInformation(changableProject.Id);
             //_logger.LogInformation(modifiedProject.NowStatus);
-            _logger.LogInformation(role + " " + userLogin);
+            //_logger.LogInformation(role + " " + userLogin);
             //_logger.LogInformation(changableProject.CreatedAt);
             //UPDATE
-            switch (role)
-            {
-                //case "ProjectManager":
-                //    if (changableProject.RolesLogins.ProjectManagerLogin.IsNullOrEmpty()) changableProject.RolesLogins.ProjectManagerLogin = userLogin;
-                //    else if (!changableProject.RolesLogins.ProjectManagerLogin.Equals(userLogin)) return; //тут ошибку по идее нужно будет ввести, и все
-                //    break;
-                case "Financier":
-                    //changableProject.FinancierCardJson = modifiedProject.FinancierCardJson;
-                    if (changableProject.RolesLogins.FinancierLogin.IsNullOrEmpty()) changableProject.RolesLogins.FinancierLogin = userLogin;
-                    else if (!changableProject.RolesLogins.FinancierLogin.Equals(userLogin)) return; //тут ошибку по идее нужно будет ввести, и все
-                    break;
-                case "Builder":
-                    //changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
-                    if(changableProject.RolesLogins.BuilderLogin.IsNullOrEmpty()) changableProject.RolesLogins.BuilderLogin = userLogin;
-                    else if (!changableProject.RolesLogins.BuilderLogin.IsNullOrEmpty() && !changableProject.RolesLogins.BuilderLogin.Equals(userLogin)) return;
-                    break;
-                case "Lawyer":
-                    //changableProject.LawyerCardJson = modifiedProject.LawyerCardJson;
-                    if (changableProject.RolesLogins.LawyerLogin.IsNullOrEmpty()) changableProject.RolesLogins.LawyerLogin = userLogin;
-                    else if (!changableProject.RolesLogins.LawyerLogin.Equals(userLogin)) return;
-                    break;
-            }
+            //switch (role)
+            //{
+            //    //case "ProjectManager":
+            //    //    if (changableProject.RolesLogins.ProjectManagerLogin.IsNullOrEmpty()) changableProject.RolesLogins.ProjectManagerLogin = userLogin;
+            //    //    else if (!changableProject.RolesLogins.ProjectManagerLogin.Equals(userLogin)) return; //тут ошибку по идее нужно будет ввести, и все
+            //    //    break;
+            //    case "Financier":
+            //        //changableProject.FinancierCardJson = modifiedProject.FinancierCardJson;
+            //        if (changableProject.RolesLogins.FinancierLogin.IsNullOrEmpty()) changableProject.RolesLogins.FinancierLogin = userLogin;
+            //        else if (!changableProject.RolesLogins.FinancierLogin.Equals(userLogin)) return; //тут ошибку по идее нужно будет ввести, и все
+            //        break;
+            //    case "Builder":
+            //        //changableProject.BuilderCardJson = modifiedProject.BuilderCardJson;
+            //        if(changableProject.RolesLogins.BuilderLogin.IsNullOrEmpty()) changableProject.RolesLogins.BuilderLogin = userLogin;
+            //        else if (!changableProject.RolesLogins.BuilderLogin.IsNullOrEmpty() && !changableProject.RolesLogins.BuilderLogin.Equals(userLogin)) return;
+            //        break;
+            //    case "Lawyer":
+            //        //changableProject.LawyerCardJson = modifiedProject.LawyerCardJson;
+            //        if (changableProject.RolesLogins.LawyerLogin.IsNullOrEmpty()) changableProject.RolesLogins.LawyerLogin = userLogin;
+            //        else if (!changableProject.RolesLogins.LawyerLogin.Equals(userLogin)) return;
+            //        break;
+            //}
 
 
             changableProject.SellerCheckJson = modifiedProject.SellerCheckJson;
