@@ -114,7 +114,7 @@ namespace ERP_Proflipper_ProjectService.Services
 
         public async Task<Result> NotificateAsync(string userLogin, HttpContent content)
         {
-            var response = await _httpClient.PostAsync($"https://localhost:7118/user/{userLogin}", content); //in parentheses must be login or name of Timur Rashidovich
+            var response = await _httpClient.PostAsync($"http://localhost:5079/user/{userLogin}", content); //in parentheses must be login or name of Timur Rashidovich
             try
             {
                 response.EnsureSuccessStatusCode();

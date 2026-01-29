@@ -370,7 +370,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
                 //_logger.LogInformation(city + "649876948ujtoiuj");
-                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-gendir-login");
+                var userModelResponse = await _httpClient.GetAsync($"http://localhost:5266/get-gendir-login");
                 var genDirJson = await userModelResponse.Content.ReadAsStringAsync();
 
 
@@ -538,7 +538,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
 
 
-                var decodedTokenResponse = await _httpClient.PostAsync($"https://localhost:7253/decode-token/{token}", null);
+                var decodedTokenResponse = await _httpClient.PostAsync($"http://localhost:5176/decode-token/{token}", null);
                 var decodeToken = await decodedTokenResponse.Content.ReadAsStringAsync();
 
                 _logger.LogInformation(decodeToken);
@@ -547,7 +547,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 _logger.LogInformation(parsedDecodedToken.ToString());
 
-                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-rights/{parsedDecodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]?.ToString()}");
+                var userModelResponse = await _httpClient.GetAsync($"http://localhost:5266/get-rights/{parsedDecodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]?.ToString()}");
                 var userRightsJson = await userModelResponse.Content.ReadAsStringAsync();
 
 
@@ -566,7 +566,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
                 _logger.LogInformation(city + "649876948ujtoiuj");
-                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-builder-role/{city}");
+                var userModelResponse = await _httpClient.GetAsync($"http://localhost:5266/get-builder-role/{city}");
                 var builderJson = await userModelResponse.Content.ReadAsStringAsync();
 
 
@@ -585,7 +585,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
 
-                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-lawyer-role/{city}");
+                var userModelResponse = await _httpClient.GetAsync($"http://localhost:5266/get-lawyer-role/{city}");
                 var lawyerJson = await userModelResponse.Content.ReadAsStringAsync();
 
 
@@ -604,7 +604,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             try
             {
 
-                var userModelResponse = await _httpClient.GetAsync($"https://localhost:7237/get-financier-role/{city}");
+                var userModelResponse = await _httpClient.GetAsync($"http://localhost:5266/get-financier-role/{city}");
                 var financierJson = await userModelResponse.Content.ReadAsStringAsync();
 
 
