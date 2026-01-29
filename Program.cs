@@ -35,14 +35,24 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddTransient<ProjectService>();
 
 builder.Services.AddDbContext<ProjectsDB>(options =>
 {
-    options.UseNpgsql("Host=localhost; Port=5432; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
-    //options.
-    options.EnableSensitiveDataLogging();
+    options.UseNpgsql("Host=195.54.178.243; Port=27031; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
+
+    //options.LogTo(message => { }, LogLevel.None);
+
+
+    //if (!builder.Environment.IsDevelopment())
+    //{
+    //    options.EnableSensitiveDataLogging(false);
+    //    options.LogTo(_ => { }, LogLevel.None);
+    //}
+
+    //options.EnableSensitiveDataLogging(false);
+    ////options.
+    ////options.EnableSensitiveDataLogging();
 }, ServiceLifetime.Scoped);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -71,6 +81,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("OnlyForFinancier", policy => policy.RequireRole("Financier"));
     options.AddPolicy("OnlyForLawyer", policy => policy.RequireRole("Lawyer"));
 });
+
+builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+
+
 
 
 builder.Services.AddOpenTelemetry()
