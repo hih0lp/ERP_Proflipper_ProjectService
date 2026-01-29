@@ -3,7 +3,6 @@ stages:
 
 variables:
   PUBLICATION_PATH: "/PUBLICATION"
-  DEPLOY_PATH: "/DEPLOY"
 
 deploy-aspnet:
   stage: deploy
@@ -20,11 +19,8 @@ deploy-aspnet:
     - 'echo "=== Публикация проекта $PROJECT_NAME... ==="'
     - 'dotnet publish "$CSPROJ_FILE" -c Release -o "$PUBLICATION_PATH/$PROJECT_NAME" --runtime linux-x64'
 
-    - 'echo "=== Идёт копирование в $DEPLOY_PATH/$PROJECT_NAME ==="'
-    - 'mkdir -p "$DEPLOY_PATH/$PROJECT_NAME"'
-    - 'cp -r "$PUBLICATION_PATH/$PROJECT_NAME"/* "$DEPLOY_PATH/$PROJECT_NAME/"'
     - 'echo "=== Деплой бэкенда завершён! Проект: $PROJECT_NAME ==="'
     - echo "СодержимоЕ папки:"
-    - 'ls -la "$DEPLOY_PATH/$PROJECT_NAME/"'
+    - 'ls -la "$PUBLICATION_PATH/$PROJECT_NAME/"'
   only:
     - TEST
