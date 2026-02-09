@@ -31,6 +31,13 @@ using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions => {
+    serverOptions.ListenAnyIP(8081);
+    serverOptions.ConfigureHttpsDefaults(httpsOptions => {
+        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+    });
+});
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors();
@@ -39,8 +46,7 @@ builder.Services.AddTransient<ProjectService>();
 
 builder.Services.AddDbContext<ProjectsDB>(options =>
 {
-    options.UseNpgsql("Host=localhost; Port=5432; Database=ERP_PROJECTS; Username=admin; Password=Tandem_2025; Encoding=UTF8; Pooling=true");
-
+    options.UseNpgsql($"Host={Environment.GetEnvironmentVariable("DB_HOST")}; Port={Environment.GetEnvironmentVariable("DB_PORT")}; Database=ERP_USERS; Username={Environment.GetEnvironmentVariable("DB_USER")}; Password={Environment.GetEnvironmentVariable("DB_PASSWORD")}; Encoding=UTF8; Pooling=true");
     //options.LogTo(message => { }, LogLevel.None);
 
 

@@ -24,12 +24,12 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-/// ИТАК
-/// очень много методов без тестов, потому что фронт у егорика упал чето
-/// короче, по идее тут однозначно можно будет сказать после тестов, но по идее все должно работать, если тебе нужно, чтобы работало хоть что-то, 
-/// то просто вытащи из методов, где есть изменения классов, все обратно в метод контроллера. Такой метод, например, EditProjectAsync(),
-/// снизу два метода, там что-то наподобие GendirApprove и тп - их раскомменти, они рабочие, но я их просто комментил во время отладки
-/// Для проверки используется запрос в юзер-сервис и токен-сервис, поэтому не забывай их включить, когда тестишь
+/// пїЅпїЅпїЅпїЅ
+/// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+/// пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ, 
+/// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, EditProjectAsync(),
+/// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ GendirApprove пїЅ пїЅпїЅ - пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+/// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 
 namespace ERP_Proflipper_WorkspaceService.Controllers
@@ -58,12 +58,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
         [HttpPost]
         [Route("/project/create")]
-        public async Task<IActionResult> CreateProject() //добавить привязку к роли пм сразу же
+        public async Task<IActionResult> CreateProject() //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ
         {
             var authHeader = Request.Headers["Authorization"].ToString();
             var parsedUserModel = await GetUserModelJsonAsync(authHeader);
 
-            if (parsedUserModel is null) //возможно, нужно поменять код ошибки, даже скорее всего, а не возможно
+            if (parsedUserModel is null) //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 return BadRequest("Failed get user rights");
 
             if (parsedUserModel["gendirRole"].ToObject<bool>() == false && parsedUserModel["canCreateProject"].ToObject<bool>() == false)
@@ -75,7 +75,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             Project project = new Project();
             //project.RolesLogins.ProjectManagerLogin = parsedUserModel["login"].ToString();
 
-            var id = await _projectService.CreateProjectInDB(project, parsedUserModel["login"].ToString()); //сюда еще логин есть
+            var id = await _projectService.CreateProjectInDB(project, parsedUserModel["login"].ToString()); //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
             _logger.LogInformation($"New project. ID: {id}");
 
@@ -87,8 +87,8 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
         [Route("/project/edit")]
         public async Task<StatusCodeResult> EditProjectAsync()
         {
-            var project = await Request.ReadFromJsonAsync<Project>(); //сделать тут проверку на роли
-            //Поскольку ТЗ на роли нет, то есть общая проверка на роли, но не более
+            var project = await Request.ReadFromJsonAsync<Project>(); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
+            //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             var authHeader = Request.Headers["Authorization"].ToString();
             var parsedUserModel = await GetUserModelJsonAsync(authHeader);
 
@@ -126,7 +126,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 var dbProject = await _projectRepository.GetProjectByIdAsync(project.Id);
 
-                if (dbProject is null) return BadRequest("Проекта не существует");
+                if (dbProject is null) return BadRequest("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
                 if (parsedUserModel["gendirRole"].ToObject<bool>() == false)
                 {
                     if (dbProject.NowStatus == "Approving" || dbProject.NowStatus == "Approved" || dbProject.IsArchived)
@@ -137,13 +137,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 _logger.LogInformation($"City from : {parsedUserModel["city"].ToString()}");
 
-                var content = CreateContentWithURI("Проект отправлен на согласование!", $"ProjectsAndDeals/projectCard?id={project.Id}");
+                var content = CreateContentWithURI("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!", $"ProjectsAndDeals/projectCard?id={project.Id}");
 
                 var builder = await GetBuilderJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
                 var financier = await GetFinancierJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
                 var lawyer = await GetLawyerJsonAsync(JsonSerializer.Deserialize<string>($"\"{parsedUserModel["city"].ToString()}\""));
 
-                if (builder is not null && !builder["login"].ToString().IsNullOrEmpty()) //закрепляются те типы, которые существуют в этом городе
+                if (builder is not null && !builder["login"].ToString().IsNullOrEmpty()) //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 {
                     dbProject.RolesLogins.BuilderLogin = builder["login"].ToString();
                     await _projectService.NotificateAsync(builder["login"].ToString(), content);
@@ -169,12 +169,12 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 return BadRequest("Logic error");
             }
         }
-        //возможно, что-то будет с json'ом и нужно будет просто с регистром поиграться
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ json'пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         [HttpPut]
         [Route("/projects/disapprove-project/{projectId}")] 
         public async Task<IActionResult> DisapproveProject(string projectId) //string role, string userLogin
         {
-            try ///TODO : ПРОСТО НАХУЙ ЗАПРОС НЕ ПРИХОДИТ БЛЯТЬ ДАЖЕ. ЗАПРОС НЕ КИДАЕТСЯ СЮДА АЛО АЛО АЛО 
+            try ///TODO : пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ 
             {
                 if (projectId is null) return BadRequest();
                 var project = await _projectRepository.GetProjectByIdAsync(projectId);
@@ -195,13 +195,13 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 _logger.LogError($"Project: {project.Id} sending to archive");
 
-                var content = CreateContentWithURI("ХУЙ ПИЗДА ЗАЛУПА!", $"ProjectsAndDeals/projectCard?id={project.Id}");
+                var content = CreateContentWithURI("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!", $"ProjectsAndDeals/projectCard?id={project.Id}");
                 var result = await _projectService.NotificateAsync(userParsedModel["login"].ToString(), content);
 
                 var dbProject = await _projectRepository.GetProjectByIdAsync(projectId);
 
                 if (userParsedModel["gendirRole"].ToObject<bool>() == false)
-                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) && //ТУТ НУЖНА ЛОГИКА С РОЛЯМИ (ОНА В МЕТОДЕ EDITPROJECTASYNC, только закомментирована)
+                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) && //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ EDITPROJECTASYNC, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                         !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.LawyerLogin) &&
                         !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.FinancierLogin))
                     {
@@ -219,7 +219,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 //await _projectService.EditProjectAsync(project); //, null, userParsedModel["login"].ToString()
 
                 return Ok();
-            }///TODO : НЕ РАБОТАЕТ БЛЯТЬ, ЧЕ ЗА ХУЙНЯ, ЕГОР ЮДИН
+            }///TODO : пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
@@ -259,7 +259,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 if (userParsedModel["gendirRole"].ToObject<bool>() == false)
                     if (!userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.BuilderLogin) &&
-                        !userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.LawyerLogin) && //чисто для проверки того, является ли юзер хотя бы одним из ответственных за проект
+                        !userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.LawyerLogin) && //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                         !userParsedModel["login"].ToObject<string>().Equals(project.RolesLogins.FinancierLogin))
                     {
                         return BadRequest("no rights");
@@ -315,7 +315,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 _logger.LogInformation($"Login: {userParsedModel["login"].ToString()}");
 
                 if (userParsedModel["gendirRole"].ToObject<bool>() == false)
-                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) && //ТУТ НУЖНА ЛОГИКА С РОЛЯМИ (ОНА В МЕТОДЕ EDITPROJECTASYNC, только закомментирована)
+                    if (!userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.BuilderLogin) && //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ EDITPROJECTASYNC, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                         !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.LawyerLogin) &&
                         !userParsedModel["login"].ToObject<string>().Equals(dbProject.RolesLogins.FinancierLogin))
                     {
@@ -327,10 +327,10 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
 
                 if (userParsedModel["gendirRole"].ToObject<bool>() == true)
                 {
-                    dbProject.NowStatus = "In Progress"; //если аппрувнул гендир, то сразу же in progress
+                    dbProject.NowStatus = "In Progress"; //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ in progress
                     await _projectRepository.UpdateAsync(project);
 
-                    return Ok(); //сразу же возврат из функции
+                    return Ok(); //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 }
 
                 string userRole = userParsedModel["role"].ToString();
@@ -344,9 +344,9 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 if (dbProject.BuilderStatus == "Approved" && dbProject.LawyerStatus == "Approved" && dbProject.FinancierStatus == "Approved")
                 {
                     dbProject.NowStatus = "Approved";
-                    var content = CreateContentWithURI("Проект был согласован", $"ProjectsAndDeals/projectCard?id={project.Id}");
+                    var content = CreateContentWithURI("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", $"ProjectsAndDeals/projectCard?id={project.Id}");
                     var genDir = await GetGendirLogin();
-                    if (genDir["login"].ToString().IsNullOrEmpty()) return BadRequest("Юзера на роли ген-дира не существует");
+                    if (genDir["login"].ToString().IsNullOrEmpty()) return BadRequest("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
                     await _projectService.NotificateAsync(genDir["login"].ToString(), content);
                 }
 
@@ -355,7 +355,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
                 _logger.LogInformation("Properties updated");
 
                 //await ChangeStatusAndNotificateIfApproved(project);
-                //await _projectService.EditProjectAsync(project);//, null, null //добавить сюда проверку на роли и логины (можно выше взять, просто права поменять)
+                //await _projectService.EditProjectAsync(project);//, null, null //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                 return Ok();
 
             }
@@ -513,7 +513,7 @@ namespace ERP_Proflipper_WorkspaceService.Controllers
             {
                 project.NowStatus = "Approved";
                 _logger.LogInformation($"Project: {project.Id} sending to Timur Rashidovich");
-                var content = CreateContentWithURI($"Проект согласован!", $"ProjectsAndDeals/projectCard?id={project.Id}");
+                var content = CreateContentWithURI($"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!", $"ProjectsAndDeals/projectCard?id={project.Id}");
                 var result = _projectService.NotificateAsync("OlegAss", content);
             }
         }   
