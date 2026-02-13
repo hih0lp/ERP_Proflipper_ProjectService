@@ -1,26 +1,194 @@
-stages:
-  - deploy
+image: docker:24.0.7
+
+services:
+  - name: docker:24.0.7-dind
+    command: ["--tls=false"]
 
 variables:
-  PUBLICATION_PATH: "/PUBLICATION"
+  # Docker настройки
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+  
+  # Registry
+  DOCKER_REGISTRY: "containerregistry.xn--80aadjammc2a2e.tech"
+  IMAGE_TAG: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA"
+  IMAGE_LATEST: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:latest"
+  
+  # Healthcheck
+  HEALTHCHECK_URL: "http://localhost:${SERVICE_PORT}/actuator/health"
+  HEALTHCHECK_TIMEOUT: "60"
+  
+stages:
+  - build
+  - test
+  - deploy
+  - healthcheck
 
-deploy-aspnet:
+# ────────────────────────────────────────────────────────────────────────
+# СТЕЙДЖ 1: СБОРКА ОБРАЗА
+# ────────────────────────────────────────────────────────────────────────
+build:
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin "$DOCKER_REGISTRY"
+  script:
+    - echo "🏗️ Сборка образа $IMAGE_TAG"
+    - docker build -t "$IMAGE_TAG" .
+    - echo "📤 Пушим образ $IMAGE_TAG"
+    - docker push "$IMAGE_TAG"
+    - echo "🏷️  Тегируем как latest"
+    - docker tag "$IMAGE_TAG" "$IMAGE_LATEST"
+    - docker push "$IMAGE_LATEST"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+
+# ────────────────────────────────────────────────────────────────────────
+# СТЕЙДЖ 2: ТЕСТЫ
+# ────────────────────────────────────────────────────────────────────────
+dotnet-test-job:
+  stage: test
+  tags:
+    - linux
+    - deploy
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - echo "🧪 Запуск тестов..."
+    - dotnet test --configuration Release --no-build --verbosity normal
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+  allow_failure: false
+
+unit-test-job:   # This job runs in the test stage.
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - linux
+    - deploy
+  script:
+    - echo "Code coverage test is not allowed"
+
+lint-test-job:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - linux
+    - deploy
+  script:
+    - echo "No lint tests found."
+
+# ────────────────────────────────────────────────────────────────────────
+# СТЕЙДЖ 3: ДЕПЛОЙ НА СЕРВЕР
+# ────────────────────────────────────────────────────────────────────────
+deploy:
   stage: deploy
   tags:
     - linux
     - deploy
   script:
-    - echo "=== Поиск .csproj файла ==="
-    - 'CSPROJ_FILE=$(find . -name "*.csproj" -type f | head -n 1)'
-    - 'if [ -z "$CSPROJ_FILE" ]; then echo "Ошибка: .csproj файл не найден" && exit 1; fi'
-    - 'echo "=== Найден проект: $CSPROJ_FILE ==="'
+    - |
+      echo "🚀 Деплой $SERVICE_NAME на $DEPLOY_HOST:$DEPLOY_PORT"
+      
+      ssh -o StrictHostKeyChecking=yes -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST "
+        echo '🔐 Авторизация в registry...'
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$DOCKER_REGISTRY'
+        
+        echo '📥 Pull нового образа...'
+        docker pull '$IMAGE_TAG'
+        
+        echo '⏹️ Останавливаем старый контейнер...'
+        docker stop '$CONTAINER_NAME' 2>/dev/null || true
+        docker rm '$CONTAINER_NAME' 2>/dev/null || true
+        
+        echo '🧹 Очистка неиспользуемых образов...'
+        docker image prune -f
+        
+        echo '🚀 Запуск нового контейнера...'
+        docker run -d \
+          --name '$CONTAINER_NAME' \
+          --restart unless-stopped \
+          -p '$SERVICE_PORT':8081 \
+          -e ASPNETCORE_ENVIRONMENT=Production \
+          -e DB_HOST='$DB_HOST' \
+          -e DB_PORT='$DB_PORT' \
+          -e DB_USER='$DB_USER' \
+          -e DB_PASSWORD='$DB_PASSWORD' \
+          -e JWT_KEY='$JWT_KEY' \
+          '$IMAGE_TAG'
+        
+        echo '✅ Контейнер запущен!'
+        sleep 3
+        docker ps --filter name='$CONTAINER_NAME' --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+        docker logout '$DOCKER_REGISTRY'
+      "
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+  environment:
+    name: production
+    url: http://$DEPLOY_HOST:$SERVICE_PORT
 
-    - 'PROJECT_NAME=$(basename "$CSPROJ_FILE" .csproj)'
-    - 'echo "=== Публикация проекта $PROJECT_NAME... ==="'
-    - 'dotnet publish "$CSPROJ_FILE" -c Release -o "$PUBLICATION_PATH/$PROJECT_NAME" --runtime linux-x64'
-
-    - 'echo "=== Деплой бэкенда завершён! Проект: $PROJECT_NAME ==="'
-    - echo "СодержимоЕ папки:"
-    - 'ls -la "$PUBLICATION_PATH/$PROJECT_NAME/"'
-  only:
-    - TEST
+# ────────────────────────────────────────────────────────────────────────
+# СТЕЙДЖ 4: HEALTHCHECK
+# ────────────────────────────────────────────────────────────────────────
+healthcheck:
+  stage: healthcheck
+  tags:
+    - linux
+    - deploy
+  script:
+    - echo "ℹ️ Healthcheck отключён до реализации /health в микросервисе"
+    - exit 0
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+  allow_failure: true
+# ────────────────────────────────────────────────────────────────────────
+# ОПЦИОНАЛЬНО: ОТКАТ ПРИ ПРОВАЛЕ HEALTHCHECK
+# ────────────────────────────────────────────────────────────────────────
+rollback:
+  stage: deploy
+  tags:
+    - linux
+    - deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -p $DEPLOY_PORT $DEPLOY_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      echo "🔄 Откат на предыдущую версию..."
+      
+      ssh -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST "
+        # Останавливаем текущий контейнер
+        docker stop $CONTAINER_NAME 2>/dev/null || true
+        docker rm $CONTAINER_NAME 2>/dev/null || true
+        
+        # Запускаем предыдущий образ (если есть)
+        echo '🚀 Запуск предыдущего образа...'
+        docker run -d \
+          --name $CONTAINER_NAME \
+          --restart unless-stopped \
+          -p $SERVICE_PORT:8081 \
+          -e ASPNETCORE_ENVIRONMENT=Production \
+          -e DB_HOST='$DB_HOST' \
+          -e DB_PORT='$DB_PORT' \
+          -e DB_USER='$DB_USER' \
+          -e DB_PASSWORD='$DB_PASSWORD' \
+          -e JWT_KEY='$JWT_KEY' \
+          $IMAGE_LATEST
+        
+        echo '✅ Откат выполнен!'
+      "
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_failure
+  when: manual
+  allow_failure: true
