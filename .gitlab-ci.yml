@@ -1,0 +1,26 @@
+stages:
+  - deploy
+
+variables:
+  PUBLICATION_PATH: "/PUBLICATION"
+
+deploy-aspnet:
+  stage: deploy
+  tags:
+    - linux
+    - deploy
+  script:
+    - echo "=== Поиск .csproj файла ==="
+    - 'CSPROJ_FILE=$(find . -name "*.csproj" -type f | head -n 1)'
+    - 'if [ -z "$CSPROJ_FILE" ]; then echo "Ошибка: .csproj файл не найден" && exit 1; fi'
+    - 'echo "=== Найден проект: $CSPROJ_FILE ==="'
+
+    - 'PROJECT_NAME=$(basename "$CSPROJ_FILE" .csproj)'
+    - 'echo "=== Публикация проекта $PROJECT_NAME... ==="'
+    - 'dotnet publish "$CSPROJ_FILE" -c Release -o "$PUBLICATION_PATH/$PROJECT_NAME" --runtime linux-x64'
+
+    - 'echo "=== Деплой бэкенда завершён! Проект: $PROJECT_NAME ==="'
+    - echo "СодержимоЕ папки:"
+    - 'ls -la "$PUBLICATION_PATH/$PROJECT_NAME/"'
+  only:
+    - TEST
