@@ -26,8 +26,14 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using static Google.Apis.Requests.BatchRequest;
 using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
+using DotNetEnv;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
 
 
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +66,8 @@ builder.Services.AddDbContext<ProjectsDB>(options =>
     ////options.
     ////options.EnableSensitiveDataLogging();
 }, ServiceLifetime.Scoped);
+
+builder.Services.AddHealthChecks().AddDbContextCheck<ProjectsDB>().AddManualHealthCheck().AddApplicationLifecycleHealthCheck();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -125,6 +133,26 @@ app.UseCors(builder => builder
     .AllowAnyHeader()
     .AllowAnyOrigin());
 
+// app.MapHealthChecks("/healthcheck");
+app.MapHealthChecks("/healthcheck", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description,
+                duration = e.Value.Duration
+            })
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
