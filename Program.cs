@@ -134,7 +134,7 @@ app.UseCors(builder => builder
     .AllowAnyOrigin());
 
 // app.MapHealthChecks("/healthcheck");
-app.MapHealthChecks("/healthcheck", new HealthCheckOptions
+app.MapHealthChecks("/health", new HealthCheckOptions
 {
     ResponseWriter = async (context, report) =>
     {
