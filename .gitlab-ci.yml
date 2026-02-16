@@ -5,20 +5,16 @@ services:
     command: ["--tls=false"]
 
 variables:
-  # Docker настройки
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
-  
-  # Registry
   DOCKER_REGISTRY: "containerregistry.xn--80aadjammc2a2e.tech"
   IMAGE_TAG: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA"
   IMAGE_LATEST: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:latest"
-  
-  # Healthcheck
-  HEALTHCHECK_URL: "http://localhost:${SERVICE_PORT}/actuator/health"
+  HEALTHCHECK_URL: "http://localhost:${SERVICE_PORT}/health"
   HEALTHCHECK_TIMEOUT: "60"
-  
+  IMAGE_ROLLBACK: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:rollback"
+
 stages:
   - build
   - test
@@ -63,16 +59,16 @@ dotnet-test-job:
       when: always
   allow_failure: false
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+unit-test-job:
+  stage: test
   tags:
     - linux
     - deploy
   script:
     - echo "Code coverage test is not allowed"
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
+lint-test-job:
+  stage: test
   tags:
     - linux
     - deploy
@@ -80,7 +76,7 @@ lint-test-job:   # This job also runs in the test stage.
     - echo "No lint tests found."
 
 # ────────────────────────────────────────────────────────────────────────
-# СТЕЙДЖ 3: ДЕПЛОЙ НА СЕРВЕР
+# СТЕЙДЖ 3: ДЕПЛОЙ
 # ────────────────────────────────────────────────────────────────────────
 deploy:
   stage: deploy
@@ -89,7 +85,7 @@ deploy:
     - deploy
   script:
     - |
-      echo "🚀 Деплой $SERVICE_NAME на $DEPLOY_HOST:$DEPLOY_PORT"
+      echo "🚀 Деплой $SERVICE_NAME на $DEPLOY_HOST (HOST NETWORK MODE)"
       
       ssh -o StrictHostKeyChecking=yes -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST "
         echo '🔐 Авторизация в registry...'
@@ -97,20 +93,29 @@ deploy:
         
         echo '📥 Pull нового образа...'
         docker pull '$IMAGE_TAG'
+        if docker ps -a --format '{{.Names}}' | grep -q \"^$CONTAINER_NAME\$\"; then
+          CURRENT_IMAGE=\$(docker inspect --format='{{.Image}}' \"$CONTAINER_NAME\" 2>/dev/null)
+          if [ -n \"\$CURRENT_IMAGE\" ]; then
+            echo '🔖 Сохраняем текущий РАБОЧИЙ образ как $IMAGE_ROLLBACK для отката'
+            docker tag \"\$CURRENT_IMAGE\" \"$IMAGE_ROLLBACK\"
+          else
+            echo '⚠️ Не удалось определить образ текущего контейнера'
+          fi
+        else
+          echo 'ℹ️ Контейнер $CONTAINER_NAME не существует (первый деплой?)'
+        fi
         
         echo '⏹️ Останавливаем старый контейнер...'
         docker stop '$CONTAINER_NAME' 2>/dev/null || true
         docker rm '$CONTAINER_NAME' 2>/dev/null || true
         
-        echo '🧹 Очистка неиспользуемых образов...'
-        docker image prune -f
-        
-        echo '🚀 Запуск нового контейнера...'
+        echo '🚀 Запуск НОВОГО контейнера в HOST NETWORK MODE...'
         docker run -d \
           --name '$CONTAINER_NAME' \
+          --network host \
           --restart unless-stopped \
-          -p '$SERVICE_PORT':8081 \
           -e ASPNETCORE_ENVIRONMENT=Production \
+          -e ASPNETCORE_URLS=http://*:$SERVICE_PORT \
           -e DB_HOST='$DB_HOST' \
           -e DB_PORT='$DB_PORT' \
           -e DB_USER='$DB_USER' \
@@ -118,17 +123,15 @@ deploy:
           -e JWT_KEY='$JWT_KEY' \
           '$IMAGE_TAG'
         
-        echo '✅ Контейнер запущен!'
+        echo '✅ Контейнер запущен! Проверка:'
         sleep 3
-        docker ps --filter name='$CONTAINER_NAME' --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+        docker ps --filter name='$CONTAINER_NAME'
+        ss -tulpn | grep ':$SERVICE_PORT' || echo '⏳ Порт ещё не слушается (старт приложения)...'
         docker logout '$DOCKER_REGISTRY'
       "
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-  environment:
-    name: production
-    url: http://$DEPLOY_HOST:$SERVICE_PORT
 
 # ────────────────────────────────────────────────────────────────────────
 # СТЕЙДЖ 4: HEALTHCHECK
@@ -139,14 +142,27 @@ healthcheck:
     - linux
     - deploy
   script:
-    - echo "ℹ️ Healthcheck отключён до реализации /health в микросервисе"
-    - exit 0
+    - |
+      echo "🩺 Проверка здоровья сервиса на порту $SERVICE_PORT..."
+      START_TIME=$(date +%s)
+      TIMEOUT=60
+      while [ $(( $(date +%s) - START_TIME )) -lt $TIMEOUT ]; do
+        if curl -sf --max-time 5 $HEALTHCHECK_URL > /dev/null; then
+          echo "✅ Healthcheck успешен! Сервис отвечает на $HEALTHCHECK_URL"
+          exit 0
+        fi
+        echo "⏳ Сервис ещё не готов, ждём 5 секунд..."
+        sleep 5
+      done
+      echo "❌ Healthcheck провален сервис не ответил за $TIMEOUT секунд"
+      exit 1
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
   allow_failure: true
+
 # ────────────────────────────────────────────────────────────────────────
-# ОПЦИОНАЛЬНО: ОТКАТ ПРИ ПРОВАЛЕ HEALTHCHECK
+# ОТКАТ
 # ────────────────────────────────────────────────────────────────────────
 rollback:
   stage: deploy
@@ -164,28 +180,39 @@ rollback:
     - chmod 644 ~/.ssh/known_hosts
   script:
     - |
-      echo "🔄 Откат на предыдущую версию..."
+      echo "🔄 ОТКАТ $SERVICE_NAME на ПРЕДЫДУЩУЮ РАБОЧУЮ ВЕРСИЮ ($IMAGE_ROLLBACK)..."
       
       ssh -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST "
-        # Останавливаем текущий контейнер
+        if ! docker image inspect $IMAGE_ROLLBACK >/dev/null 2>&1; then
+          echo '❌ КРИТИЧЕСКАЯ ОШИБКА Образ $IMAGE_ROLLBACK не найден!'
+          echo 'Возможно, это первый деплой или образ был удалён.'
+          echo 'Проверьте логи предыдущего деплоя — был ли сохранён образ?'
+          exit 1
+        fi
+        
+        echo '⏹️ Останавливаем текущий (сломанный) контейнер...'
         docker stop $CONTAINER_NAME 2>/dev/null || true
         docker rm $CONTAINER_NAME 2>/dev/null || true
         
-        # Запускаем предыдущий образ (если есть)
-        echo '🚀 Запуск предыдущего образа...'
+        echo '🚀 Запускаем ПРЕДЫДУЩУЮ РАБОЧУЮ ВЕРСИЮ из $IMAGE_ROLLBACK...'
         docker run -d \
           --name $CONTAINER_NAME \
+          --network host \
           --restart unless-stopped \
-          -p $SERVICE_PORT:8081 \
           -e ASPNETCORE_ENVIRONMENT=Production \
+          -e ASPNETCORE_URLS=http://*:$SERVICE_PORT \
           -e DB_HOST='$DB_HOST' \
           -e DB_PORT='$DB_PORT' \
           -e DB_USER='$DB_USER' \
           -e DB_PASSWORD='$DB_PASSWORD' \
           -e JWT_KEY='$JWT_KEY' \
-          $IMAGE_LATEST
+          $IMAGE_ROLLBACK
         
-        echo '✅ Откат выполнен!'
+        echo '✅ Откат завершён! Проверка статуса:'
+        sleep 3
+        docker ps --filter name=$CONTAINER_NAME --format 'table {{.Names}}\t{{.Status}}'
+        echo '🔍 Проверка порта:'
+        ss -tulpn | grep ':$SERVICE_PORT' || echo '⚠️ Порт не слушается'
       "
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
