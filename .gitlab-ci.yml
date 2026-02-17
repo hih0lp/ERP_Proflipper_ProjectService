@@ -11,7 +11,7 @@ variables:
   DOCKER_REGISTRY: "containerregistry.xn--80aadjammc2a2e.tech"
   IMAGE_TAG: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA"
   IMAGE_LATEST: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:latest"
-  HEALTHCHECK_URL: "http://localhost:${SERVICE_PORT}/health"
+  HEALTHCHECK_URL: "http://${DEPLOY_HOST}:${SERVICE_PORT}/health"
   HEALTHCHECK_TIMEOUT: "60"
   IMAGE_ROLLBACK: "$DOCKER_REGISTRY/$CI_PROJECT_PATH:rollback"
 
@@ -116,15 +116,19 @@ deploy:
           --restart unless-stopped \
           -e ASPNETCORE_ENVIRONMENT=Production \
           -e ASPNETCORE_URLS=http://*:$SERVICE_PORT \
+          -e PROJECT_SERVICE_PORT=$SERVICE_PORT \
           -e DB_HOST='$DB_HOST' \
           -e DB_PORT='$DB_PORT' \
           -e DB_USER='$DB_USER' \
           -e DB_PASSWORD='$DB_PASSWORD' \
           -e JWT_KEY='$JWT_KEY' \
+          -e REDIS_HOST='$REDIS_HOST' \
+          -e REDIS_PORT='$REDIS_PORT' \
+          -e REDIS_PASSWORD='$REDIS_PASSWORD' \
           '$IMAGE_TAG'
         
         echo '✅ Контейнер запущен! Проверка:'
-        sleep 3
+        sleep 15
         docker ps --filter name='$CONTAINER_NAME'
         ss -tulpn | grep ':$SERVICE_PORT' || echo '⏳ Порт ещё не слушается (старт приложения)...'
         docker logout '$DOCKER_REGISTRY'
@@ -132,7 +136,6 @@ deploy:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: on_success
-
 # ────────────────────────────────────────────────────────────────────────
 # СТЕЙДЖ 4: HEALTHCHECK
 # ────────────────────────────────────────────────────────────────────────
@@ -141,13 +144,15 @@ healthcheck:
   tags:
     - linux
     - deploy
+  image: curlimages/curl:latest
   script:
     - |
       echo "🩺 Проверка здоровья сервиса на порту $SERVICE_PORT..."
+      echo "📍 URL: $HEALTHCHECK_URL"
       START_TIME=$(date +%s)
-      TIMEOUT=60
+      TIMEOUT=$HEALTHCHECK_TIMEOUT
       while [ $(( $(date +%s) - START_TIME )) -lt $TIMEOUT ]; do
-        if curl -sf --max-time 5 $HEALTHCHECK_URL > /dev/null; then
+        if curl -sf --max-time 5 "$HEALTHCHECK_URL" > /dev/null; then
           echo "✅ Healthcheck успешен! Сервис отвечает на $HEALTHCHECK_URL"
           exit 0
         fi
@@ -155,6 +160,8 @@ healthcheck:
         sleep 5
       done
       echo "❌ Healthcheck провален сервис не ответил за $TIMEOUT секунд"
+      echo "🔍 Пробуем curl с выводом ошибки:"
+      curl -v "$HEALTHCHECK_URL" || true
       exit 1
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
